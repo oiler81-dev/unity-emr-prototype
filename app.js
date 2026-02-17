@@ -1,38 +1,25 @@
-/* =========================================================
-   UnityEMR Prototype - Frontend only
-   NOTE: This version focuses on fixing the Today/Schedule screen.
-   Providers updated: Dr. Kevin Pelton, Felipe Nunez, PA-C
-   ========================================================= */
+// UnityEMR Prototype (static)
+// Goal: Make the Today screen NOT broken and not squished.
+// Providers: Dr. Kevin Pelton, Felipe Nunez, PA-C
 
 const state = {
   session: null,
-  route: "login",
-  chartSection: "summary",
-  selectedPatientId: null,
-  selectedVisitId: null,
-  scheduleView: "list",
+  route: "today",
+  view: "list",
   filters: { status: "all", provider: "all" },
-  density: "comfort",
-  encounter: {
-    locked: false,
-    signedBy: null,
-    version: 1,
-    template: "knee_initial",
-    fields: { hpi:"", exam:"", assessment:"", plan:"", dx:"" }
-  }
+  density: "comfort"
 };
 
-/* ---------- Mock Data ---------- */
 const providers = [
-  { id: "p1", name: "Dr. Kevin Pelton", specialty: "General Ortho" },
-  { id: "p2", name: "Felipe Nunez, PA-C", specialty: "Orthopedics" }
+  { id: "p1", name: "Dr. Kevin Pelton" },
+  { id: "p2", name: "Felipe Nunez, PA-C" }
 ];
 
 const patients = [
-  { id:"pt1", mrn:"U-10021", name:"Maria Gonzal", dob:"1972-03-18", sex:"F", phone:"(323) 555-0122", allergies:["Penicillin"], meds:["Naproxen PRN"], problems:["Knee osteoarthritis", "Meniscus tear (suspected)"] },
-  { id:"pt2", mrn:"U-10058", name:"James Carter", dob:"1986-11-02", sex:"M", phone:"(310) 555-0188", allergies:["None"], meds:["Ibuprofen PRN"], problems:["Shoulder impingement", "Rotator cuff tendinopathy"] },
-  { id:"pt3", mrn:"U-10102", name:"Linh Tran", dob:"1991-07-09", sex:"F", phone:"(818) 555-0105", allergies:["Sulfa"], meds:["Acetaminophen PRN"], problems:["Low back pain", "Lumbar radiculopathy"] },
-  { id:"pt4", mrn:"U-10133", name:"Robert Diaz", dob:"1964-01-27", sex:"M", phone:"(213) 555-0199", allergies:["Latex"], meds:["Meloxicam"], problems:["Cervical radiculopathy", "Cervical stenosis"] }
+  { id:"pt1", mrn:"U-10021", name:"Maria Gonzal", dob:"1972-03-18", sex:"F" },
+  { id:"pt2", mrn:"U-10058", name:"James Carter", dob:"1986-11-02", sex:"M" },
+  { id:"pt3", mrn:"U-10102", name:"Linh Tran", dob:"1991-07-09", sex:"F" },
+  { id:"pt4", mrn:"U-10133", name:"Robert Diaz", dob:"1964-01-27", sex:"M" }
 ];
 
 const visits = [
@@ -43,146 +30,150 @@ const visits = [
   { id:"v5", time:"10:40", patientId:"pt1", providerId:"p2", status:"noshow", reason:"MRI review", visitNo:"V-24015" }
 ];
 
-/* ---------- DOM ---------- */
 const $ = (id) => document.getElementById(id);
-
-const routeEls = {
-  login: $("routeLogin"),
-  schedule: $("routeSchedule"),
-  chart: $("routeChart"),
-  encounter: $("routeEncounter"),
-  admin: $("routeAdmin")
-};
-
-const navButtons = Array.from(document.querySelectorAll(".nav-item"));
-const subnavButtons = Array.from(document.querySelectorAll(".subnav-item"));
-
-/* ---------- Utilities ---------- */
-function toast(title, sub = "") {
-  const host = $("toasts");
-  const el = document.createElement("div");
-  el.className = "toast";
-  el.innerHTML = `<div class="toast-title">${escapeHtml(title)}</div>${sub ? `<div class="toast-sub">${escapeHtml(sub)}</div>` : ""}`;
-  host.appendChild(el);
-  setTimeout(() => el.remove(), 3500);
-}
 
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, s => ({
-    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
   }[s]));
 }
 
 function initials(name){
   const parts = String(name).trim().split(/\s+/);
   const a = parts[0]?.[0] || "";
-  const b = parts[parts.length-1]?.[0] || "";
+  const b = parts[parts.length - 1]?.[0] || "";
   return (a + b).toUpperCase();
 }
 
-function getPatient(id){ return patients.find(p => p.id === id) || null; }
-function getProvider(id){ return providers.find(p => p.id === id) || null; }
-function getVisit(id){ return visits.find(v => v.id === id) || null; }
-
 function calcAge(dobStr){
   const dob = new Date(dobStr);
-  const today = new Date();
-  let age = today.getFullYear() - dob.getFullYear();
-  const m = today.getMonth() - dob.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+  const now = new Date();
+  let age = now.getFullYear() - dob.getFullYear();
+  const m = now.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age--;
   return age;
 }
 
 function badgeClass(status){
   return {
-    checkedin: "b-checkedin",
-    arrived: "b-arrived",
-    roomed: "b-roomed",
-    complete: "b-complete",
-    noshow: "b-noshow"
+    checkedin:"b-checkedin",
+    arrived:"b-arrived",
+    roomed:"b-roomed",
+    complete:"b-complete",
+    noshow:"b-noshow"
   }[status] || "";
 }
 
 function statusLabel(status){
   return {
-    checkedin: "Checked In",
-    arrived: "Arrived",
-    roomed: "Roomed",
-    complete: "Complete",
-    noshow: "No Show"
+    checkedin:"Checked In",
+    arrived:"Arrived",
+    roomed:"Roomed",
+    complete:"Complete",
+    noshow:"No Show"
   }[status] || status;
 }
 
-/* ---------- Routing ---------- */
+function toast(title, sub=""){
+  const host = $("toasts");
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.innerHTML = `<div class="toastTitle">${escapeHtml(title)}</div>${sub ? `<div class="toastSub">${escapeHtml(sub)}</div>` : ""}`;
+  host.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
 function setRoute(route){
   state.route = route;
 
-  navButtons.forEach(btn => btn.classList.toggle("is-active", btn.dataset.route === route));
-  Object.entries(routeEls).forEach(([k, el]) => el.classList.toggle("is-active", k === route));
+  const map = {
+    today: $("routeToday"),
+    chart: $("routeChart"),
+    encounter: $("routeEncounter"),
+    imports: $("routeImports")
+  };
 
-  const chartNav = $("chartNav");
-  const showChartNav = (route === "chart" || route === "encounter");
-  chartNav.style.display = showChartNav ? "flex" : "none";
+  Object.values(map).forEach(el => el.classList.remove("isActive"));
+  map[route].classList.add("isActive");
 
-  const titleMap = { schedule:"Today", chart:"Chart", encounter:"Encounter", admin:"Imports", login:"" };
-  $("contextTitle").textContent = titleMap[route] || "UnityEMR";
-  $("contextSub").textContent = route === "schedule"
-    ? "Schedule • Unity MSK"
-    : route === "chart"
-      ? "Problem-oriented charting"
-      : route === "encounter"
-        ? "Clinical documentation"
-        : route === "admin"
-          ? "Admin tools"
-          : "Mock SSO";
+  // Nav active state
+  const navButtons = [
+    $("navToday"), $("navChart"), $("navEncounter"), $("navImports")
+  ];
+  navButtons.forEach(b => b.classList.remove("isActive"));
+  const activeBtn = {
+    today: $("navToday"),
+    chart: $("navChart"),
+    encounter: $("navEncounter"),
+    imports: $("navImports")
+  }[route];
+  activeBtn?.classList.add("isActive");
 
-  enforcePermissions();
+  // Page title
+  const title = { today:"Today", chart:"Chart", encounter:"Encounter", imports:"Imports" }[route] || "UnityEMR";
+  const sub = {
+    today:"Schedule • Unity MSK",
+    chart:"Prototype placeholder",
+    encounter:"Prototype placeholder",
+    imports:"Admin tools"
+  }[route] || "Internal Prototype";
+  $("pageTitle").textContent = title;
+  $("pageSubtitle").textContent = sub;
 
-  if (route === "schedule") renderSchedule();
-}
+  // Admin gate
+  const isAdmin = state.session?.role === "admin";
+  $("adminTag").style.display = isAdmin ? "inline-block" : "none";
+  $("navImports").disabled = !isAdmin;
+  $("navImports").style.opacity = isAdmin ? "1" : ".5";
 
-function enforcePermissions(){
-  const role = state.session?.role;
-
-  const adminBtn = $("navAdmin");
-  const adminTag = $("adminTag");
-  const canAdmin = role === "admin";
-  adminBtn.disabled = !canAdmin;
-  adminTag.style.display = canAdmin ? "inline-block" : "none";
-  adminBtn.style.opacity = canAdmin ? "1" : ".5";
-
-  if (state.route === "admin" && role !== "admin"){
+  if (route === "imports" && !isAdmin){
     toast("Access denied", "Admin role required");
-    setRoute("schedule");
+    setRoute("today");
+    return;
   }
+
+  if (route === "today") renderSchedule();
 }
 
-/* ---------- Login ---------- */
-function login(){
-  const role = $("loginRole").value;
-  const name = $("loginName").value.trim() || "User";
-  state.session = { role, name };
-
-  $("userName").textContent = name;
-  $("userRole").textContent = role.toUpperCase();
-  $("userAvatar").textContent = initials(name);
-
-  toast("Signed in", `${role.toUpperCase()} session`);
-  setRoute("schedule");
-}
-
-/* ---------- Schedule (FIXED) ---------- */
 function populateProviderFilter(){
   const sel = $("providerFilter");
   sel.innerHTML = `<option value="all">All</option>` + providers.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("");
 }
 
 function filteredVisits(){
-  return visits.filter(v => {
-    if (state.filters.status !== "all" && v.status !== state.filters.status) return false;
-    if (state.filters.provider !== "all" && v.providerId !== state.filters.provider) return false;
-    return true;
-  }).sort((a,b) => a.time.localeCompare(b.time));
+  return visits
+    .filter(v => state.filters.status === "all" || v.status === state.filters.status)
+    .filter(v => state.filters.provider === "all" || v.providerId === state.filters.provider)
+    .sort((a,b) => a.time.localeCompare(b.time));
+}
+
+function renderVisitRow(v){
+  const p = patients.find(x => x.id === v.patientId);
+  const age = p ? calcAge(p.dob) : "—";
+  const sub = p ? `${p.sex} • ${age} • ${p.mrn} • ${v.visitNo}` : "—";
+
+  return `
+    <div class="visitRow" data-visit-id="${v.id}">
+      <div class="time">${escapeHtml(v.time)}</div>
+
+      <div class="patient">
+        <div class="pAvatar">${escapeHtml(initials(p?.name || "—"))}</div>
+        <div class="pText">
+          <div class="pName">${escapeHtml(p?.name || "Unknown")}</div>
+          <div class="pSub">${escapeHtml(sub)}</div>
+        </div>
+      </div>
+
+      <div class="reason">${escapeHtml(v.reason)}</div>
+
+      <span class="badge ${badgeClass(v.status)}">${escapeHtml(statusLabel(v.status))}</span>
+
+      <div class="actions">
+        <button class="mini" data-action="chart">Chart</button>
+        <button class="mini" data-action="note">Note</button>
+      </div>
+    </div>
+  `;
 }
 
 function renderSchedule(){
@@ -190,163 +181,64 @@ function renderSchedule(){
   $("statusFilter").value = state.filters.status;
   $("providerFilter").value = state.filters.provider;
 
-  document.querySelectorAll(".seg-item").forEach(btn => {
-    btn.classList.toggle("is-active", btn.dataset.view === state.scheduleView);
-  });
+  const list = filteredVisits();
+  $("groupSub").textContent = `${list.length} visits`;
+  $("groupTitle").textContent = state.view === "provider" ? "By Provider" : "All Providers";
 
   const host = $("scheduleList");
-  const list = filteredVisits();
 
-  // header
-  const title = state.scheduleView === "provider" ? "By Provider" : "All Providers";
-  $("scheduleGroupTitle").textContent = title;
-  $("scheduleGroupSub").textContent = `${list.length} visits`;
-
-  // IMPORTANT: full-width rows always. No nested narrow columns.
-  if (state.scheduleView === "provider"){
-    const byProv = new Map();
+  if (state.view === "provider"){
+    const by = new Map();
     list.forEach(v => {
-      const key = v.providerId;
-      if (!byProv.has(key)) byProv.set(key, []);
-      byProv.get(key).push(v);
+      if (!by.has(v.providerId)) by.set(v.providerId, []);
+      by.get(v.providerId).push(v);
     });
 
-    host.innerHTML = Array.from(byProv.entries()).map(([provId, items]) => {
-      const prov = getProvider(provId);
-      const subHead = `
-        <div class="schedule-group-head" style="border-top:1px solid var(--border);">
-          <div class="group-title">${escapeHtml(prov?.name || "Provider")}</div>
-          <div class="group-sub">${items.length} visits</div>
+    host.innerHTML = Array.from(by.entries()).map(([providerId, items]) => {
+      const prov = providers.find(p => p.id === providerId);
+      const head = `
+        <div class="groupHead" style="border-top:1px solid var(--border);">
+          <div class="groupTitle">${escapeHtml(prov?.name || "Provider")}</div>
+          <div class="groupSub">${items.length} visits</div>
         </div>
       `;
-      const rows = items.map(v => renderVisitRow(v)).join("");
-      return `${subHead}${rows}`;
+      const rows = items.map(renderVisitRow).join("");
+      return head + rows;
     }).join("");
   } else {
-    host.innerHTML = list.map(v => renderVisitRow(v)).join("");
+    host.innerHTML = list.map(renderVisitRow).join("");
   }
 }
 
-function renderVisitRow(v){
-  const p = getPatient(v.patientId);
-  const age = p ? calcAge(p.dob) : "—";
-  const sub = p ? `${p.sex} • ${age} • ${p.mrn}` : "—";
-
-  return `
-    <div class="visit-row" data-visit-id="${v.id}">
-      <div class="visit-time">${escapeHtml(v.time)}</div>
-
-      <div class="visit-patient">
-        <div class="px-avatar">${escapeHtml(initials(p?.name || "—"))}</div>
-        <div class="px-text">
-          <div class="px-name">${escapeHtml(p?.name || "Unknown")}</div>
-          <div class="px-sub">${escapeHtml(sub)}</div>
-        </div>
-      </div>
-
-      <div class="visit-reason">${escapeHtml(v.reason)}</div>
-
-      <span class="badge ${badgeClass(v.status)}">${escapeHtml(statusLabel(v.status))}</span>
-
-      <div class="visit-actions">
-        <button class="btn-mini" data-action="openChart">Chart</button>
-        <button class="btn-mini" data-action="openEncounter">Note</button>
-      </div>
-    </div>
-  `;
+function openLogin(){
+  $("loginOverlay").classList.add("isOpen");
+}
+function closeLogin(){
+  $("loginOverlay").classList.remove("isOpen");
 }
 
-/* ---------- Events ---------- */
-function bindEvents(){
-  $("loginBtn").addEventListener("click", login);
+function signIn(){
+  const role = $("loginRole").value;
+  const name = $("loginName").value.trim() || "User";
+  state.session = { role, name };
 
-  $("logoutBtn").addEventListener("click", () => {
-    state.session = null;
-    state.selectedPatientId = null;
-    state.selectedVisitId = null;
-    toast("Signed out");
-    setRoute("login");
-  });
+  $("userAvatar").textContent = initials(name);
+  $("userName").textContent = name;
+  $("userRole").textContent = role.toUpperCase();
 
-  $("themeToggle").addEventListener("click", toggleTheme);
+  toast("Signed in", `${role.toUpperCase()} session`);
+  closeLogin();
+  setRoute("today");
+}
 
-  navButtons.forEach(btn => btn.addEventListener("click", () => {
-    const route = btn.dataset.route;
-    if (route === "admin" && state.session?.role !== "admin") {
-      toast("Access denied", "Admin role required");
-      return;
-    }
-    setRoute(route);
-  }));
-
-  document.querySelectorAll(".seg-item").forEach(btn => {
-    btn.addEventListener("click", () => {
-      state.scheduleView = btn.dataset.view;
-      renderSchedule();
-    });
-  });
-
-  $("statusFilter").addEventListener("change", (e) => {
-    state.filters.status = e.target.value;
-    renderSchedule();
-  });
-  $("providerFilter").addEventListener("change", (e) => {
-    state.filters.provider = e.target.value;
-    renderSchedule();
-  });
-
-  $("scheduleList").addEventListener("click", (e) => {
-    const row = e.target.closest(".visit-row");
-    if (!row) return;
-
-    const actionBtn = e.target.closest("button[data-action]");
-    if (!actionBtn) return;
-
-    const visitId = row.dataset.visitId;
-    const v = getVisit(visitId);
-    if (!v) return;
-
-    // Prototype navigation
-    if (actionBtn.dataset.action === "openChart"){
-      toast("Prototype", `Open Chart for ${getPatient(v.patientId)?.name || "patient"}`);
-    }
-    if (actionBtn.dataset.action === "openEncounter"){
-      toast("Prototype", `Open Note for ${getPatient(v.patientId)?.name || "patient"}`);
-    }
-  });
-
-  $("densityToggle").addEventListener("click", () => {
-    state.density = (state.density === "comfort") ? "compact" : "comfort";
-    document.body.classList.toggle("density-compact", state.density === "compact");
-    $("densityLabel").textContent = state.density === "compact" ? "Compact" : "Comfort";
-  });
-
-  $("mockSyncBtn").addEventListener("click", () => {
-    $("syncText").textContent = "Syncing…";
-    $("syncDot").style.background = "var(--primary)";
-    setTimeout(() => {
-      $("syncText").textContent = "Idle";
-      $("syncDot").style.background = "var(--muted)";
-      toast("CSV Sync complete", "Mock indicator only");
-    }, 900);
-  });
-
-  // Keyboard shortcuts
-  document.addEventListener("keydown", (e) => {
-    const isMac = navigator.platform.toLowerCase().includes("mac");
-    const ctrlOrCmd = isMac ? e.metaKey : e.ctrlKey;
-
-    if (ctrlOrCmd && e.key.toLowerCase() === "k"){
-      e.preventDefault();
-      toast("Prototype", "Search modal exists in full build; not wired here.");
-      return;
-    }
-
-    if (e.altKey && e.key.toLowerCase() === "t"){
-      toggleTheme();
-      return;
-    }
-  });
+function signOut(){
+  state.session = null;
+  $("userAvatar").textContent = "NP";
+  $("userName").textContent = "Not signed in";
+  $("userRole").textContent = "—";
+  toast("Signed out");
+  openLogin();
+  setRoute("today");
 }
 
 function toggleTheme(){
@@ -355,9 +247,185 @@ function toggleTheme(){
   body.classList.toggle("theme-light", !dark);
 }
 
-/* ---------- Init ---------- */
+function toggleDensity(){
+  state.density = (state.density === "comfort") ? "compact" : "comfort";
+  document.body.classList.toggle("densityCompact", state.density === "compact");
+  $("densityLabel").textContent = (state.density === "compact") ? "Compact" : "Comfort";
+}
+
+function openSearch(){
+  $("searchModal").classList.add("isOpen");
+  $("searchModal").setAttribute("aria-hidden", "false");
+  $("searchInput").value = "";
+  renderSearchResults("");
+  setTimeout(() => $("searchInput").focus(), 0);
+}
+
+function closeSearch(){
+  $("searchModal").classList.remove("isOpen");
+  $("searchModal").setAttribute("aria-hidden", "true");
+}
+
+function renderSearchResults(query){
+  const q = query.trim().toLowerCase();
+  const results = patients.filter(p => {
+    if (!q) return true;
+    return (
+      p.name.toLowerCase().includes(q) ||
+      p.mrn.toLowerCase().includes(q)
+    );
+  });
+
+  const host = $("searchResults");
+  if (!results.length){
+    host.innerHTML = `<div class="resultRow"><div class="resultLeft"><div class="resultName">No matches</div><div class="resultSub">Try a different name/MRN</div></div></div>`;
+    return;
+  }
+
+  host.innerHTML = results.map(p => {
+    const age = calcAge(p.dob);
+    return `
+      <div class="resultRow" data-patient-id="${p.id}">
+        <div class="resultLeft">
+          <div class="resultName">${escapeHtml(p.name)}</div>
+          <div class="resultSub">${escapeHtml(`${p.sex} • ${age} • ${p.mrn}`)}</div>
+        </div>
+        <div class="resultRight">${escapeHtml(p.mrn)}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+function bindEvents(){
+  // Login
+  $("loginBtn").addEventListener("click", signIn);
+
+  // Nav
+  $("navToday").addEventListener("click", () => setRoute("today"));
+  $("navChart").addEventListener("click", () => setRoute("chart"));
+  $("navEncounter").addEventListener("click", () => setRoute("encounter"));
+  $("navImports").addEventListener("click", () => setRoute("imports"));
+
+  // Top actions
+  $("themeBtn").addEventListener("click", toggleTheme);
+  $("signOutBtn").addEventListener("click", signOut);
+
+  $("syncBtn").addEventListener("click", () => {
+    $("syncText").textContent = "Syncing…";
+    $("syncDot").style.background = "var(--primary)";
+    setTimeout(() => {
+      $("syncText").textContent = "Idle";
+      $("syncDot").style.background = "var(--muted)";
+      toast("CSV Sync complete", "Mock indicator only");
+    }, 850);
+  });
+
+  // Schedule controls
+  $("densityBtn").addEventListener("click", toggleDensity);
+
+  $("viewListBtn").addEventListener("click", () => {
+    state.view = "list";
+    $("viewListBtn").classList.add("isActive");
+    $("viewProviderBtn").classList.remove("isActive");
+    renderSchedule();
+  });
+  $("viewProviderBtn").addEventListener("click", () => {
+    state.view = "provider";
+    $("viewProviderBtn").classList.add("isActive");
+    $("viewListBtn").classList.remove("isActive");
+    renderSchedule();
+  });
+
+  $("statusFilter").addEventListener("change", (e) => {
+    state.filters.status = e.target.value;
+    renderSchedule();
+  });
+
+  $("providerFilter").addEventListener("change", (e) => {
+    state.filters.provider = e.target.value;
+    renderSchedule();
+  });
+
+  // Row actions
+  $("scheduleList").addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+    const row = e.target.closest(".visitRow");
+    if (!row) return;
+
+    const visitId = row.dataset.visitId;
+    const v = visits.find(x => x.id === visitId);
+    const p = patients.find(x => x.id === v.patientId);
+
+    if (btn.dataset.action === "chart"){
+      toast("Prototype", `Open chart: ${p.name}`);
+      setRoute("chart");
+    } else {
+      toast("Prototype", `Open note: ${p.name}`);
+      setRoute("encounter");
+    }
+  });
+
+  // Search
+  $("openSearchBtn").addEventListener("click", openSearch);
+  $("closeSearchBtn").addEventListener("click", closeSearch);
+  $("searchModal").addEventListener("click", (e) => {
+    if (e.target === $("searchModal")) closeSearch();
+  });
+
+  $("searchInput").addEventListener("input", (e) => {
+    renderSearchResults(e.target.value);
+  });
+
+  $("searchResults").addEventListener("click", (e) => {
+    const row = e.target.closest(".resultRow");
+    if (!row || !row.dataset.patientId) return;
+    const p = patients.find(x => x.id === row.dataset.patientId);
+    toast("Selected patient", p.name);
+    closeSearch();
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener("keydown", (e) => {
+    const isMac = navigator.platform.toLowerCase().includes("mac");
+    const ctrlOrCmd = isMac ? e.metaKey : e.ctrlKey;
+
+    // Ctrl/Cmd+K -> search
+    if (ctrlOrCmd && e.key.toLowerCase() === "k"){
+      e.preventDefault();
+      openSearch();
+      return;
+    }
+
+    // Escape closes search
+    if (e.key === "Escape"){
+      closeSearch();
+    }
+
+    // G then T/C/E (simple)
+    if (e.key.toLowerCase() === "g"){
+      state._g = true;
+      setTimeout(() => state._g = false, 900);
+      return;
+    }
+    if (state._g){
+      const k = e.key.toLowerCase();
+      if (k === "t") setRoute("today");
+      if (k === "c") setRoute("chart");
+      if (k === "e") setRoute("encounter");
+      state._g = false;
+    }
+  });
+}
+
 function init(){
-  setRoute("login");
+  // Initial state: force login overlay on
+  openLogin();
+
+  // Pre-populate provider filter and schedule
+  populateProviderFilter();
+  renderSchedule();
+
   bindEvents();
 }
 
