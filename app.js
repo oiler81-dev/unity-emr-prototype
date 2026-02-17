@@ -1,16 +1,16 @@
-// UnityEMR Prototype — Split-pane Today layout fix
+// UnityEMR Prototype — responsive (mobile + desktop) from the start
 const $ = (sel) => document.querySelector(sel);
 
 const state = {
   session: { signedIn: false, userName: "Not signed in", role: "—", initials: "NP" },
-  ui: { theme: localStorage.getItem("uemr_theme") || "light", patientTab: "encounters" },
+  ui: { theme: localStorage.getItem("uemr_theme") || "light" },
   selected: { visit: "V-104221", encounterStatus: "draft" },
   data: {
     schedule: [
-      { visit: "V-104221", time: "8:00 AM", patientId: "P-88214", patient: "Jordan Reyes", dob: "1987-04-19", reason: "Knee pain", type: "New", status: "Arrived" },
-      { visit: "V-104222", time: "8:30 AM", patientId: "P-77102", patient: "Maria Chen", dob: "1972-11-03", reason: "Shoulder pain", type: "FU", status: "Scheduled" },
-      { visit: "V-104223", time: "9:00 AM", patientId: "P-54019", patient: "Anthony Smith", dob: "1994-02-11", reason: "Hip pain", type: "New", status: "Scheduled" },
-      { visit: "V-104224", time: "9:30 AM", patientId: "P-66318", patient: "Elena Garcia", dob: "1961-08-25", reason: "Ankle pain", type: "FU", status: "Cancelled" },
+      { visit: "V-104221", time: "8:00 AM", patientId: "P-88214", reason: "Knee pain", type: "New", status: "Arrived" },
+      { visit: "V-104222", time: "8:30 AM", patientId: "P-77102", reason: "Shoulder pain", type: "FU", status: "Scheduled" },
+      { visit: "V-104223", time: "9:00 AM", patientId: "P-54019", reason: "Hip pain", type: "New", status: "Scheduled" },
+      { visit: "V-104224", time: "9:30 AM", patientId: "P-66318", reason: "Ankle pain", type: "FU", status: "Cancelled" },
     ],
     patients: {
       "P-88214": {
@@ -42,7 +42,8 @@ const state = {
         phone: "(213) 555-0177", email: "anthony.smith@example.com",
         address: "420 Sunset Ave, Los Angeles, CA 90026",
         allergies: ["NKDA"], meds: ["Naproxen PRN"], problems: ["Right hip pain"],
-        docs: [], encounters: [], intake: { painScore: 6, onset: "6 weeks", aggravating: "Running", relieving: "Rest", goal: "Back to jogging" }
+        docs: [], encounters: [],
+        intake: { painScore: 6, onset: "6 weeks", aggravating: "Running", relieving: "Rest", goal: "Back to jogging" }
       },
       "P-66318": {
         name: "Elena Garcia", dob: "1961-08-25", sex: "F", chart: "CH-118230",
@@ -65,6 +66,8 @@ const state = {
   }
 };
 
+const mqMobile = window.matchMedia("(max-width: 980px)");
+
 function applyTheme(theme){
   state.ui.theme = theme;
   document.documentElement.setAttribute("data-theme", theme);
@@ -77,7 +80,7 @@ function toast(title, body){
   el.className = "toast";
   el.innerHTML = `<p class="toastTitle">${title}</p><p class="toastBody">${body}</p>`;
   host.appendChild(el);
-  setTimeout(() => el.remove(), 3200);
+  setTimeout(() => el.remove(), 2800);
 }
 
 function setSession(signedIn, userName, role, initials){
@@ -123,9 +126,7 @@ function patientPhotoDataUrl(name){
       </linearGradient>
     </defs>
     <rect width="120" height="120" rx="28" fill="url(#g)"/>
-    <circle cx="60" cy="52" r="22" fill="rgba(255,255,255,.22)"/>
-    <rect x="28" y="74" width="64" height="28" rx="14" fill="rgba(255,255,255,.18)"/>
-    <text x="60" y="68" text-anchor="middle" font-family="system-ui,Segoe UI,Roboto" font-size="30" font-weight="800" fill="rgba(255,255,255,.92)">${initials}</text>
+    <text x="60" y="72" text-anchor="middle" font-family="system-ui,Segoe UI,Roboto" font-size="34" font-weight="900" fill="rgba(255,255,255,.95)">${initials}</text>
   </svg>`;
   return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg.trim());
 }
@@ -147,8 +148,33 @@ function currentPatient(){
   return state.data.patients[appt.patientId];
 }
 
-/* ===================== VIEWS ===================== */
+/* ===== Mobile drawer ===== */
+function openSidebar(){
+  $("#sidebar").classList.add("open");
+  $("#backdrop").classList.add("show");
+}
+function closeSidebar(){
+  $("#sidebar").classList.remove("open");
+  $("#backdrop").classList.remove("show");
+}
 
+$("#btnSidebar").addEventListener("click", () => {
+  const isOpen = $("#sidebar").classList.contains("open");
+  if (isOpen) closeSidebar();
+  else openSidebar();
+});
+$("#backdrop").addEventListener("click", closeSidebar);
+
+/* Close drawer after navigation on mobile */
+function bindNavAutoClose(){
+  document.querySelectorAll(".navItem").forEach(a => {
+    a.addEventListener("click", () => {
+      if (mqMobile.matches) closeSidebar();
+    });
+  });
+}
+
+/* ===== Views ===== */
 const views = {
   login(){
     setCrumbs("Login");
@@ -156,8 +182,15 @@ const views = {
 
     $("#view").innerHTML = `
       <div class="card" style="max-width:760px">
-        <h2 class="cardTitle">Sign in</h2>
-        <p class="cardSub">Mock SSO login for role-based flows. No PHI. Click-through prototype only.</p>
+        <div class="cardHeader">
+          <div>
+            <h1 class="h1">Sign in</h1>
+            <div class="sub">Mock SSO. No PHI. Click-through prototype.</div>
+          </div>
+          <span class="badge">Prototype</span>
+        </div>
+
+        <div class="hr"></div>
 
         <label class="label">User</label>
         <select class="select" id="selUser">
@@ -168,7 +201,7 @@ const views = {
 
         <div class="row" style="margin-top:12px">
           <button class="btn btnPrimary" id="btnLogin" type="button">Continue</button>
-          <span class="badge">Theme toggle for comfort</span>
+          <span class="badge">Use Theme toggle</span>
         </div>
       </div>
     `;
@@ -178,12 +211,11 @@ const views = {
       if (val === "provider") setSession(true, "Dr. Pelton", "Provider", "DP");
       if (val === "ma") setSession(true, "MA • Clinic", "MA", "MA");
       if (val === "admin") setSession(true, "Nestor Perez", "Admin", "NP");
-      toast("Signed in", `Logged in as ${state.session.userName} (${state.session.role})`);
+      toast("Signed in", `${state.session.userName} (${state.session.role})`);
       location.hash = "#/schedule";
     };
   },
 
-  /* ✅ FIXED TODAY PAGE */
   schedule(){
     if (!requireSignIn()) return;
     setCrumbs("Today");
@@ -191,44 +223,45 @@ const views = {
 
     const appt = currentAppointment();
     const p = currentPatient();
-    const pImg = patientPhotoDataUrl(p.name);
+    const img = patientPhotoDataUrl(p.name);
 
-    const rows = state.data.schedule.map(a => {
-      const px = state.data.patients[a.patientId];
-      const img = patientPhotoDataUrl(px.name);
-      const isActive = a.visit === state.selected.visit;
+    const listHtml = state.data.schedule.map(v => {
+      const pv = state.data.patients[v.patientId];
+      const vImg = patientPhotoDataUrl(pv.name);
+      const active = v.visit === state.selected.visit;
       return `
-        <tr ${isActive ? 'style="background: var(--softAccent)"' : ""}>
-          <td><span class="kbd">${a.time}</span></td>
-          <td>
+        <div class="visitCard ${active ? "active" : ""}" data-open="${v.visit}" role="button" tabindex="0">
+          <div class="visitLeft">
+            <span class="timePill">${v.time}</span>
             <div class="patientCell">
-              <img class="photo" src="${img}" alt="${px.name}"/>
+              <img class="photo" src="${vImg}" alt="${pv.name}">
               <div class="patientMeta">
-                <strong>${px.name}</strong>
-                <div class="small">${a.reason} • ${a.type}</div>
+                <div class="patientName">${pv.name}</div>
+                <div class="patientLine">${v.reason} • ${v.type}</div>
               </div>
             </div>
-          </td>
-          <td>${badge(a.status)}</td>
-          <td><button class="btn btnGhost" data-open="${a.visit}" type="button">Open</button></td>
-        </tr>
+          </div>
+          <div>${badge(v.status)}</div>
+        </div>
       `;
     }).join("");
 
     $("#view").innerHTML = `
       <div class="splitPane">
-        <!-- LEFT: schedule list -->
+        <!-- Schedule list -->
         <div class="card">
-          <div class="spread">
+          <div class="cardHeader">
             <div>
-              <h2 class="cardTitle">Today’s Schedule</h2>
-              <p class="cardSub">Select a visit to view details.</p>
+              <h1 class="h1">Today’s Schedule</h1>
+              <div class="sub">Tap a visit to view details.</div>
             </div>
             <span class="badge good">Synced</span>
           </div>
 
-          <div class="row" style="margin-bottom:10px">
-            <div style="flex:1; min-width:160px">
+          <div class="hr"></div>
+
+          <div class="row">
+            <div style="flex:1; min-width: 180px">
               <label class="label">Status</label>
               <select class="select" id="filterStatus">
                 <option value="All">All</option>
@@ -239,119 +272,115 @@ const views = {
             </div>
           </div>
 
-          <table class="table" aria-label="Schedule list">
-            <thead><tr><th style="width:92px">Time</th><th>Patient</th><th style="width:120px">Status</th><th style="width:88px"></th></tr></thead>
-            <tbody id="scheduleBody">${rows}</tbody>
-          </table>
+          <div class="hr"></div>
+
+          <div class="list" id="visitList">${listHtml}</div>
         </div>
 
-        <!-- RIGHT: details panel (fills the empty space) -->
-        <div class="card detailShell">
-          <div class="spread">
+        <!-- Details -->
+        <div class="card">
+          <div class="cardHeader">
             <div class="patientCell">
-              <img class="photo" style="width:46px;height:46px" src="${pImg}" alt="${p.name}"/>
-              <div>
-                <h2 class="cardTitle" style="margin:0">${p.name}</h2>
-                <div class="cardSub" style="margin:4px 0 0 0">
-                  Visit <span class="kbd">${appt.visit}</span> • DOB ${p.dob} • Chart <span class="kbd">${p.chart}</span>
-                </div>
+              <img class="photo" src="${img}" alt="${p.name}" />
+              <div class="patientMeta">
+                <div class="patientName">${p.name}</div>
+                <div class="patientLine">Visit <span class="kbd">${appt.visit}</span> • DOB ${p.dob} • Chart <span class="kbd">${p.chart}</span></div>
               </div>
             </div>
             <div class="row">
-              <button class="btn" id="btnGoChart" type="button">Open Chart</button>
-              <button class="btn btnPrimary" id="btnGoEncounter" type="button">Start Encounter</button>
+              <button class="btn" id="btnGoChart" type="button">Chart</button>
+              <button class="btn btnPrimary" id="btnGoEncounter" type="button">Encounter</button>
             </div>
           </div>
 
           <div class="hr"></div>
 
-          <div class="row">
-            <span class="badge">Reason: ${appt.reason}</span>
-            <span class="badge">Type: ${appt.type}</span>
-            ${badge(appt.status)}
-          </div>
+          <div class="detailGrid">
+            <div class="card" style="box-shadow:none">
+              <h2 class="h2">Visit</h2>
+              <div class="sub">Reason, status, and quick context.</div>
+              <div class="hr"></div>
+              <div class="row">
+                <span class="badge">Reason: ${appt.reason}</span>
+                <span class="badge">Type: ${appt.type}</span>
+                ${badge(appt.status)}
+              </div>
 
-          <div class="hr"></div>
+              <div class="hr"></div>
 
-          <h3 class="cardTitle" style="font-size:16px">Contact</h3>
-          <div class="row">
-            <span class="badge">Phone: ${p.phone}</span>
-            <span class="badge">Email: ${p.email}</span>
-          </div>
-          <div class="tiny muted" style="margin-top:8px">${p.address}</div>
+              <h2 class="h2">Clinical Snapshot</h2>
+              <div class="sub">Fast view for clinicians.</div>
+              <div class="hr"></div>
+              <div class="sub"><strong>Allergies:</strong> ${ (p.allergies||[]).join(", ") || "—" }</div>
+              <div class="sub"><strong>Meds:</strong> ${ (p.meds||[]).join(", ") || "—" }</div>
+              <div class="sub"><strong>Problems:</strong> ${ (p.problems||[]).join(", ") || "—" }</div>
+            </div>
 
-          <div class="hr"></div>
-
-          <h3 class="cardTitle" style="font-size:16px">Clinical Snapshot</h3>
-          <div class="tiny"><strong>Allergies:</strong> <span class="muted">${(p.allergies||[]).join(", ") || "—"}</span></div>
-          <div class="tiny"><strong>Meds:</strong> <span class="muted">${(p.meds||[]).join(", ") || "—"}</span></div>
-          <div class="tiny"><strong>Problems:</strong> <span class="muted">${(p.problems||[]).join(", ") || "—"}</span></div>
-
-          <div class="hr"></div>
-
-          <div class="tiny muted">
-            This right panel exists specifically to prevent the “shrunk schedule column + huge empty space” issue.
+            <div class="card" style="box-shadow:none">
+              <h2 class="h2">Contact</h2>
+              <div class="sub">Quick reference.</div>
+              <div class="hr"></div>
+              <div class="sub"><strong>Phone:</strong> ${p.phone}</div>
+              <div class="sub"><strong>Email:</strong> ${p.email}</div>
+              <div class="hr"></div>
+              <div class="sub">${p.address}</div>
+            </div>
           </div>
         </div>
       </div>
     `;
 
-    // open visit buttons
-    document.querySelectorAll("[data-open]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        state.selected.visit = btn.getAttribute("data-open");
-        state.selected.encounterStatus = "draft";
-        toast("Visit opened", `Selected ${state.selected.visit}.`);
-        views.schedule(); // re-render details pane
+    // bind open handlers (click + keyboard)
+    const bindOpen = () => {
+      document.querySelectorAll("[data-open]").forEach(el => {
+        const open = () => {
+          state.selected.visit = el.getAttribute("data-open");
+          state.selected.encounterStatus = "draft";
+          views.schedule();
+          toast("Visit selected", state.selected.visit);
+        };
+        el.addEventListener("click", open);
+        el.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+        });
       });
-    });
+    };
+    bindOpen();
 
     $("#btnGoChart").onclick = () => location.hash = "#/patient";
     $("#btnGoEncounter").onclick = () => location.hash = "#/encounter";
 
-    // simple status filter (prototype)
     $("#filterStatus").onchange = () => {
       const wanted = $("#filterStatus").value;
-      const filtered = state.data.schedule.filter(a => wanted === "All" ? true : a.status === wanted);
-
-      const tbody = $("#scheduleBody");
-      tbody.innerHTML = filtered.map(a => {
-        const px = state.data.patients[a.patientId];
-        const img = patientPhotoDataUrl(px.name);
-        const isActive = a.visit === state.selected.visit;
+      const filtered = state.data.schedule.filter(v => wanted === "All" ? true : v.status === wanted);
+      const html = filtered.map(v => {
+        const pv = state.data.patients[v.patientId];
+        const vImg = patientPhotoDataUrl(pv.name);
+        const active = v.visit === state.selected.visit;
         return `
-          <tr ${isActive ? 'style="background: var(--softAccent)"' : ""}>
-            <td><span class="kbd">${a.time}</span></td>
-            <td>
+          <div class="visitCard ${active ? "active" : ""}" data-open="${v.visit}" role="button" tabindex="0">
+            <div class="visitLeft">
+              <span class="timePill">${v.time}</span>
               <div class="patientCell">
-                <img class="photo" src="${img}" alt="${px.name}"/>
+                <img class="photo" src="${vImg}" alt="${pv.name}">
                 <div class="patientMeta">
-                  <strong>${px.name}</strong>
-                  <div class="small">${a.reason} • ${a.type}</div>
+                  <div class="patientName">${pv.name}</div>
+                  <div class="patientLine">${v.reason} • ${v.type}</div>
                 </div>
               </div>
-            </td>
-            <td>${badge(a.status)}</td>
-            <td><button class="btn btnGhost" data-open="${a.visit}" type="button">Open</button></td>
-          </tr>
+            </div>
+            <div>${badge(v.status)}</div>
+          </div>
         `;
       }).join("");
-
-      // rebind buttons
-      document.querySelectorAll("[data-open]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          state.selected.visit = btn.getAttribute("data-open");
-          state.selected.encounterStatus = "draft";
-          toast("Visit opened", `Selected ${state.selected.visit}.`);
-          views.schedule();
-        });
-      });
+      $("#visitList").innerHTML = html;
+      bindOpen();
     };
   },
 
   patient(){
     if (!requireSignIn()) return;
-    setCrumbs("Patient Chart");
+    setCrumbs("Chart");
     setActiveNav("patient");
 
     const appt = currentAppointment();
@@ -359,45 +388,62 @@ const views = {
     const img = patientPhotoDataUrl(p.name);
 
     const docs = (p.docs || []).map(d =>
-      `<tr><td>${d.type}</td><td>${d.name}</td><td><button class="btn btnGhost" type="button">View</button></td></tr>`
-    ).join("") || `<tr><td colspan="3" class="muted">No documents</td></tr>`;
+      `<div class="visitCard" role="group">
+         <div class="visitLeft">
+           <span class="timePill">DOC</span>
+           <div style="min-width:0">
+             <div class="patientName">${d.type}</div>
+             <div class="patientLine">${d.name}</div>
+           </div>
+         </div>
+         <button class="btn btnGhost" type="button">View</button>
+       </div>`
+    ).join("") || `<div class="sub muted">No documents</div>`;
 
     const encs = (p.encounters || []).map(e =>
-      `<tr><td>${e.date}</td><td>${e.provider}</td><td>${e.type}</td><td>${badge(e.status)}</td><td><button class="btn btnGhost" type="button">Open</button></td></tr>`
-    ).join("") || `<tr><td colspan="5" class="muted">No encounters yet</td></tr>`;
+      `<div class="visitCard" role="group">
+         <div class="visitLeft">
+           <span class="timePill">${e.date}</span>
+           <div style="min-width:0">
+             <div class="patientName">${e.type}</div>
+             <div class="patientLine">${e.provider}</div>
+           </div>
+         </div>
+         ${badge(e.status)}
+       </div>`
+    ).join("") || `<div class="sub muted">No encounters yet</div>`;
 
     $("#view").innerHTML = `
       <div class="card">
-        <div class="spread">
+        <div class="cardHeader">
           <div class="patientCell">
-            <img class="photo" style="width:46px;height:46px" src="${img}" alt="${p.name}"/>
-            <div>
-              <h2 class="cardTitle" style="margin:0">${p.name}</h2>
-              <div class="cardSub" style="margin:4px 0 0 0">
+            <img class="photo" src="${img}" alt="${p.name}">
+            <div class="patientMeta">
+              <div class="patientName">${p.name}</div>
+              <div class="patientLine">
                 Visit <span class="kbd">${appt.visit}</span> • DOB ${p.dob} • Sex ${p.sex} • Chart <span class="kbd">${p.chart}</span>
               </div>
             </div>
           </div>
-          <div class="row">
-            <button class="btn btnPrimary" id="btnStartEncounter" type="button">Start / Continue Encounter</button>
-          </div>
+          <button class="btn btnPrimary" id="btnStartEncounter" type="button">Start Encounter</button>
         </div>
 
         <div class="hr"></div>
 
-        <h3 class="cardTitle" style="font-size:16px">Encounters</h3>
-        <table class="table">
-          <thead><tr><th>Date</th><th>Provider</th><th>Type</th><th>Status</th><th></th></tr></thead>
-          <tbody>${encs}</tbody>
-        </table>
+        <h2 class="h2">Snapshot</h2>
+        <div class="sub"><strong>Allergies:</strong> ${(p.allergies||[]).join(", ") || "—"}</div>
+        <div class="sub"><strong>Meds:</strong> ${(p.meds||[]).join(", ") || "—"}</div>
+        <div class="sub"><strong>Problems:</strong> ${(p.problems||[]).join(", ") || "—"}</div>
 
         <div class="hr"></div>
 
-        <h3 class="cardTitle" style="font-size:16px">Documents</h3>
-        <table class="table">
-          <thead><tr><th>Type</th><th>Name</th><th></th></tr></thead>
-          <tbody>${docs}</tbody>
-        </table>
+        <h2 class="h2">Encounters</h2>
+        <div class="list">${encs}</div>
+
+        <div class="hr"></div>
+
+        <h2 class="h2">Documents</h2>
+        <div class="list">${docs}</div>
       </div>
     `;
 
@@ -417,58 +463,48 @@ const views = {
 
     $("#view").innerHTML = `
       <div class="card">
-        <div class="spread">
+        <div class="cardHeader">
           <div class="patientCell">
-            <img class="photo" style="width:42px;height:42px" src="${img}" alt="${p.name}"/>
-            <div>
-              <h2 class="cardTitle" style="margin:0">Encounter • ${n.template}</h2>
-              <div class="cardSub" style="margin:4px 0 0 0">
-                ${p.name} • Visit <span class="kbd">${appt.visit}</span> • ${badge(locked ? "Signed" : "Draft")}
-              </div>
+            <img class="photo" src="${img}" alt="${p.name}">
+            <div class="patientMeta">
+              <div class="patientName">${p.name}</div>
+              <div class="patientLine">Visit <span class="kbd">${appt.visit}</span> • ${badge(locked ? "Signed" : "Draft")}</div>
             </div>
           </div>
 
           <div class="row">
             <button class="btn btnGhost" id="btnPreview" type="button">Preview</button>
-            <button class="btn btnPrimary" id="btnSign" type="button">${locked ? "Signed" : "Sign note"}</button>
+            <button class="btn btnPrimary" id="btnSign" type="button">${locked ? "Signed" : "Sign"}</button>
           </div>
         </div>
 
         <div class="hr"></div>
 
-        <div class="row" style="align-items:flex-start">
-          <div style="flex:1; min-width:280px">
-            <label class="label">HPI</label>
-            <textarea class="textarea" id="hpi" ${locked ? "disabled" : ""}>${escapeHtml(n.hpi)}</textarea>
+        <label class="label">HPI</label>
+        <textarea class="textarea" id="hpi" ${locked ? "disabled" : ""}>${escapeHtml(n.hpi)}</textarea>
 
-            <label class="label" style="margin-top:12px">Exam</label>
-            <textarea class="textarea" id="exam" ${locked ? "disabled" : ""}>${escapeHtml(n.exam)}</textarea>
+        <label class="label" style="margin-top:12px">Exam</label>
+        <textarea class="textarea" id="exam" ${locked ? "disabled" : ""}>${escapeHtml(n.exam)}</textarea>
 
-            <label class="label" style="margin-top:12px">Assessment</label>
-            <textarea class="textarea" id="assessment" ${locked ? "disabled" : ""}>${escapeHtml(n.assessment)}</textarea>
+        <label class="label" style="margin-top:12px">Assessment</label>
+        <textarea class="textarea" id="assessment" ${locked ? "disabled" : ""}>${escapeHtml(n.assessment)}</textarea>
 
-            <label class="label" style="margin-top:12px">Plan</label>
-            <textarea class="textarea" id="plan" ${locked ? "disabled" : ""}>${escapeHtml(n.plan)}</textarea>
-          </div>
+        <label class="label" style="margin-top:12px">Plan</label>
+        <textarea class="textarea" id="plan" ${locked ? "disabled" : ""}>${escapeHtml(n.plan)}</textarea>
 
-          <div style="width:340px; min-width:300px">
+        <div class="hr"></div>
+
+        <div class="row">
+          <div style="flex:1; min-width:220px">
             <label class="label">Primary Dx</label>
             <input class="input" id="dx" ${locked ? "disabled" : ""} value="${n.dx[0]}" />
-
-            <div class="hr"></div>
-
-            <div class="row">
-              <button class="btn" id="btnSave" type="button" ${locked ? "disabled" : ""}>Save draft</button>
-              <button class="btn btnDanger" id="btnNewVersion" type="button" ${locked ? "" : "disabled"}>New version</button>
-            </div>
-
-            <div class="hr"></div>
-
-            <button class="btn btnPrimary" id="btnExport" type="button">Export signed PDF</button>
-
-            <div class="hr"></div>
-            <div class="tiny muted">Signed notes are immutable. Post-sign edits require a new version.</div>
           </div>
+          <button class="btn" id="btnSave" type="button" ${locked ? "disabled" : ""}>Save draft</button>
+          <button class="btn btnPrimary" id="btnExport" type="button">Export signed PDF</button>
+        </div>
+
+        <div class="sub muted" style="margin-top:10px">
+          Rule: Signed notes are immutable. Post-sign edits require a new version.
         </div>
       </div>
     `;
@@ -480,13 +516,12 @@ const views = {
       state.data.note.assessment = $("#assessment").value;
       state.data.note.plan = $("#plan").value;
       state.data.note.dx = [$("#dx").value];
-      toast("Saved", "Draft updated (prototype memory only).");
+      toast("Saved", "Draft updated (prototype only).");
     };
 
     $("#btnSave").onclick = save;
 
     $("#btnPreview").onclick = () => {
-      toast("Preview", "Mock preview shown as a dialog.");
       window.alert(
         `NOTE PREVIEW (MOCK)\n\n${n.template}\nPatient: ${p.name}\nVisit: ${appt.visit}\n\nHPI:\n${state.data.note.hpi}\n\nEXAM:\n${state.data.note.exam}\n\nASSESSMENT:\n${state.data.note.assessment}\n\nPLAN:\n${state.data.note.plan}\n\nDX:\n${state.data.note.dx.join(", ")}`
       );
@@ -504,12 +539,6 @@ const views = {
       views.encounter();
     };
 
-    $("#btnNewVersion").onclick = () => {
-      state.selected.encounterStatus = "draft";
-      toast("New version", "Unlocked as a new draft version (mock).");
-      views.encounter();
-    };
-
     $("#btnExport").onclick = () => {
       if (state.selected.encounterStatus !== "signed"){
         toast("Sign required", "Sign the note before exporting.");
@@ -521,18 +550,28 @@ const views = {
 
   adminImport(){
     if (!requireSignIn()) return;
-    setCrumbs("Admin • Imports");
+    setCrumbs("Imports");
     setActiveNav("admin-import");
+
     $("#view").innerHTML = `
-      <div class="card">
-        <h2 class="cardTitle">CSV Imports (Mock)</h2>
-        <p class="cardSub">Simulated import only in this prototype.</p>
+      <div class="card" style="max-width:760px">
+        <div class="cardHeader">
+          <div>
+            <h1 class="h1">CSV Imports</h1>
+            <div class="sub">Prototype-only simulation.</div>
+          </div>
+          <span class="badge">Admin</span>
+        </div>
+
+        <div class="hr"></div>
+
         <div class="row">
-          <button class="btn btnPrimary" id="btnRunImport" type="button">Run import</button>
-          <span class="badge">Admin only</span>
+          <button class="btn btnPrimary" id="btnRunImport" type="button">Run import (mock)</button>
+          <span class="badge">Patients + Visits</span>
         </div>
       </div>
     `;
+
     $("#btnRunImport").onclick = () => {
       if (state.session.role !== "Admin"){
         toast("Permission denied", "Only Admin can run imports.");
@@ -543,8 +582,7 @@ const views = {
   }
 };
 
-/* ===================== ROUTER + UI ===================== */
-
+/* ===== Router ===== */
 function route(){
   const hash = location.hash || "#/login";
   const base = hash.replace("#/","").split("?")[0];
@@ -562,26 +600,30 @@ function route(){
   }
 }
 
-// Sidebar toggle (mobile)
-$("#btnSidebar").addEventListener("click", () => $("#sidebar").classList.toggle("closed"));
-
-// Theme
+/* ===== Global bindings ===== */
 applyTheme(state.ui.theme);
+
 $("#btnTheme").addEventListener("click", () => {
   const next = (state.ui.theme === "light") ? "dark" : "light";
   applyTheme(next);
-  toast("Theme updated", `Now using ${next} theme.`);
+  toast("Theme", `Switched to ${next}`);
 });
 
-// Sign out
 $("#btnSignOut").addEventListener("click", () => {
   setSession(false, "Not signed in", "—", "NP");
   state.selected.encounterStatus = "draft";
-  toast("Signed out", "Session cleared (prototype).");
+  toast("Signed out", "Session cleared.");
   location.hash = "#/login";
 });
 
-// Keyboard nav: G then T/P/E
+window.addEventListener("hashchange", route);
+mqMobile.addEventListener?.("change", () => {
+  // if switching between sizes, ensure drawer doesn't stay stuck open
+  closeSidebar();
+  // re-render current route to adapt layout if needed
+  route();
+});
+
 let chord = null;
 window.addEventListener("keydown", (e) => {
   const key = e.key.toLowerCase();
@@ -595,7 +637,6 @@ window.addEventListener("keydown", (e) => {
   chord = null;
 });
 
-// Init
-window.addEventListener("hashchange", route);
 setSession(false, "Not signed in", "—", "NP");
+bindNavAutoClose();
 route();
