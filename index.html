@@ -2,114 +2,331 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>UnityEMR • Prototype</title>
-  <meta name="color-scheme" content="light dark" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UnityEMR Prototype</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-  <!-- Mobile drawer backdrop -->
-  <div class="Backdrop" id="Backdrop" aria-hidden="true"></div>
+<body class="theme-light">
+  <div id="app" class="app-shell" aria-live="polite">
 
-  <div class="App" id="App">
-    <!-- Sidebar / Drawer -->
-    <aside class="Nav" id="Nav" aria-label="Primary navigation">
-      <div class="Nav__brand">
-        <div class="BrandMark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="18" height="18">
-            <path fill="currentColor" d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 5v4h4v2h-4v4h-2v-4H7V11h4V7h2z"/>
-          </svg>
-        </div>
-        <div class="BrandText">
-          <div class="BrandText__name">UnityEMR</div>
-          <div class="BrandText__sub">Internal Prototype</div>
+    <!-- LEFT: Global Navigation -->
+    <aside class="global-nav" aria-label="Global navigation">
+      <div class="brand">
+        <div class="brand-mark" id="brandMark" aria-label="UnityEMR logo">U</div>
+        <div class="brand-text">
+          <div class="brand-title">UnityEMR</div>
+          <div class="brand-sub">Internal Prototype</div>
         </div>
       </div>
 
-      <nav class="Nav__items">
-        <a class="NavItem" href="#/login" data-route="login">
-          <span class="NavItem__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z"/></svg>
-          </span>
-          <span class="NavItem__label">Login</span>
-        </a>
-
-        <a class="NavItem" href="#/today" data-route="today">
-          <span class="NavItem__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M7 2h2v2h6V2h2v2h3v18H4V4h3V2zm13 6H4v12h16V8z"/></svg>
-          </span>
-          <span class="NavItem__label">Today</span>
-        </a>
-
-        <a class="NavItem" href="#/chart" data-route="chart">
-          <span class="NavItem__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M6 2h9l3 3v17H6V2zm9 1.5V6h2.5L15 3.5zM8 9h8v2H8V9zm0 4h8v2H8v-2zm0 4h6v2H8v-2z"/></svg>
-          </span>
-          <span class="NavItem__label">Chart</span>
-        </a>
-
-        <a class="NavItem" href="#/encounter" data-route="encounter">
-          <span class="NavItem__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M4 4h16v2H4V4zm0 4h10v2H4V8zm0 4h16v2H4v-2zm0 4h10v2H4v-2zm12.7-7.3 2.6 2.6-6.8 6.8H10v-2.5l6.7-6.8z"/></svg>
-          </span>
-          <span class="NavItem__label">Encounter</span>
-        </a>
-
-        <a class="NavItem" href="#/imports" data-route="imports">
-          <span class="NavItem__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M5 20h14v-2H5v2zM12 2l5 5h-3v6h-4V7H7l5-5z"/></svg>
-          </span>
-          <span class="NavItem__label">Imports</span>
-        </a>
+      <nav class="nav" role="navigation">
+        <button class="nav-item is-active" data-route="schedule" id="navSchedule">
+          <span class="nav-ico">📅</span><span>Today</span>
+        </button>
+        <button class="nav-item" data-route="chart" id="navChart">
+          <span class="nav-ico">🧑‍⚕️</span><span>Chart</span>
+        </button>
+        <button class="nav-item" data-route="encounter" id="navEncounter">
+          <span class="nav-ico">📝</span><span>Encounter</span>
+        </button>
+        <button class="nav-item" data-route="admin" id="navAdmin">
+          <span class="nav-ico">⬆️</span><span>Imports</span>
+          <span class="tag tag-muted" id="adminTag">Admin</span>
+        </button>
       </nav>
 
-      <div class="Nav__footer">
-        <div class="UserChip">
-          <div class="UserChip__avatar" id="Avatar">NP</div>
-          <div class="UserChip__meta">
-            <div class="UserChip__name" id="UserName">Not signed in</div>
-            <div class="UserChip__role" id="UserRole">—</div>
+      <div class="nav-footer">
+        <div class="user-pill" id="userPill" role="button" tabindex="0" aria-label="User menu">
+          <div class="avatar" id="userAvatar">NP</div>
+          <div class="user-meta">
+            <div class="user-name" id="userName">—</div>
+            <div class="user-role" id="userRole">—</div>
           </div>
         </div>
 
-        <div class="Nav__footerRow">
-          <button class="Btn Btn--ghost" id="BtnTheme" type="button">Theme</button>
-          <button class="Btn Btn--ghost" id="BtnSignOut" type="button">Sign out</button>
+        <div class="footer-actions">
+          <button class="btn btn-ghost" id="themeToggle" title="Toggle theme (Alt+T)">Theme</button>
+          <button class="btn btn-ghost" id="logoutBtn">Logout</button>
         </div>
 
-        <div class="Hint">
-          Shortcuts: <span class="Kbd">G</span> then <span class="Kbd">T</span>/<span class="Kbd">C</span>/<span class="Kbd">E</span>
+        <div class="hint">
+          <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>K</kbd> Search</div>
+          <div><kbd>G</kbd> then <kbd>T</kbd>/<kbd>P</kbd>/<kbd>E</kbd></div>
         </div>
       </div>
     </aside>
 
-    <!-- Main -->
-    <main class="Main">
-      <header class="Topbar">
-        <div class="Topbar__left">
-          <button class="IconBtn" id="BtnNav" type="button" aria-label="Open navigation">
-            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h16v2H4v-2z"/></svg>
-          </button>
-          <div class="Topbar__crumbs" id="Crumbs">UnityEMR</div>
+    <!-- MAIN COLUMN -->
+    <main class="main" aria-label="Main workspace">
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="context-title" id="contextTitle">Today</div>
+          <div class="context-sub" id="contextSub">Schedule • Unity MSK</div>
         </div>
 
-        <div class="Topbar__right">
-          <span class="Pill" id="ClinicPill">LA • Clinic A</span>
-          <span class="Pill Pill--soft" id="SyncPill">CSV Sync</span>
+        <div class="topbar-right">
+          <button class="btn btn-secondary" id="openSearchBtn" title="Patient search (Ctrl/⌘+K)">
+            Search Patients
+          </button>
+          <button class="btn btn-secondary" id="mockSyncBtn" title="Mock CSV sync">
+            CSV Sync: <span class="sync-dot" id="syncDot"></span><span id="syncText">Idle</span>
+          </button>
         </div>
       </header>
 
-      <section class="Content" id="View"></section>
+      <!-- CONTENT GRID: Secondary sidebar + Primary content -->
+      <div class="content-grid">
 
-      <!-- Mobile bottom actions -->
-      <div class="MobileBar" id="MobileBar" aria-hidden="true">
-        <button class="Btn Btn--ghost" id="MBChart" type="button">Chart</button>
-        <button class="Btn Btn--primary" id="MBEncounter" type="button">Encounter</button>
+        <!-- SECONDARY: Patient Chart Navigation (shows on chart/encounter) -->
+        <aside class="chart-nav" id="chartNav" aria-label="Chart navigation">
+          <div class="chart-nav-head">
+            <div class="chart-nav-title">Chart</div>
+            <div class="chart-nav-sub" id="chartNavSub">No patient selected</div>
+          </div>
+
+          <div class="chart-nav-section">
+            <button class="subnav-item is-active" data-chart-section="summary">Summary</button>
+            <button class="subnav-item" data-chart-section="problems">Problems + Note</button>
+            <button class="subnav-item" data-chart-section="documents">Documents</button>
+            <button class="subnav-item" data-chart-section="intake">Intake</button>
+          </div>
+
+          <div class="chart-nav-footer">
+            <button class="btn btn-primary" id="startEncounterBtn">Start Encounter</button>
+            <button class="btn btn-ghost" id="backToTodayBtn">Back to Today</button>
+          </div>
+        </aside>
+
+        <!-- PRIMARY: Route Panels -->
+        <section class="workspace" aria-label="Workspace">
+
+          <!-- ROUTE: LOGIN (full overlay) -->
+          <section class="route route-login" id="routeLogin" aria-label="Login">
+            <div class="login-card">
+              <div class="login-title">UnityEMR</div>
+              <div class="login-sub">Mock SSO • Role-based prototype</div>
+
+              <label class="field">
+                <span>Sign in as</span>
+                <select id="loginRole">
+                  <option value="provider">Provider</option>
+                  <option value="ma">Medical Assistant</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Display name</span>
+                <input id="loginName" type="text" value="Nestor Perez" />
+              </label>
+
+              <button class="btn btn-primary btn-block" id="loginBtn">Continue</button>
+
+              <div class="login-note">
+                Prototype only • No PHI • Session simulated in-memory
+              </div>
+            </div>
+          </section>
+
+          <!-- ROUTE: TODAY / SCHEDULE -->
+          <section class="route" id="routeSchedule" aria-label="Today schedule">
+            <div class="panel schedule-panel">
+              <div class="panel-head">
+                <div class="panel-title">Today’s Schedule</div>
+                <div class="panel-actions">
+                  <button class="btn btn-ghost" id="densityToggle">Density: <span id="densityLabel">Comfort</span></button>
+                </div>
+              </div>
+
+              <div class="schedule-toolbar">
+                <div class="segmented" role="tablist" aria-label="Schedule view">
+                  <button class="seg-item is-active" data-view="list">List</button>
+                  <button class="seg-item" data-view="provider">By Provider</button>
+                </div>
+
+                <div class="filters">
+                  <label class="field-inline">
+                    <span>Status</span>
+                    <select id="statusFilter">
+                      <option value="all">All</option>
+                      <option value="checkedin">Checked In</option>
+                      <option value="arrived">Arrived</option>
+                      <option value="roomed">Roomed</option>
+                      <option value="complete">Complete</option>
+                      <option value="noshow">No Show</option>
+                    </select>
+                  </label>
+
+                  <label class="field-inline">
+                    <span>Provider</span>
+                    <select id="providerFilter">
+                      <option value="all">All</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+
+              <!-- fixed header + full-width list -->
+              <div class="schedule-group-head">
+                <div class="group-title" id="scheduleGroupTitle">All Providers</div>
+                <div class="group-sub" id="scheduleGroupSub">—</div>
+              </div>
+
+              <div class="schedule-list" id="scheduleList"></div>
+            </div>
+          </section>
+
+          <!-- ROUTE: CHART -->
+          <section class="route" id="routeChart" aria-label="Patient chart">
+
+            <div class="sticky-patient" id="patientHeader">
+              <div class="patient-id">
+                <div class="patient-photo" id="patientPhoto" aria-hidden="true"></div>
+                <div class="patient-meta">
+                  <div class="patient-name" id="patientName">No patient selected</div>
+                  <div class="patient-demographics" id="patientDemo">—</div>
+                </div>
+              </div>
+
+              <div class="patient-actions">
+                <button class="btn btn-secondary" id="openEncounterBtn">Open Encounter</button>
+                <button class="btn btn-ghost" id="mockExportBtn">Export to AdvancedMD</button>
+              </div>
+            </div>
+
+            <div class="chart-content" id="chartContent"></div>
+          </section>
+
+          <!-- ROUTE: ENCOUNTER -->
+          <section class="route" id="routeEncounter" aria-label="Encounter workspace">
+            <div class="sticky-patient">
+              <div class="patient-id">
+                <div class="patient-photo" id="encPatientPhoto" aria-hidden="true"></div>
+                <div class="patient-meta">
+                  <div class="patient-name" id="encPatientName">No patient selected</div>
+                  <div class="patient-demographics" id="encPatientDemo">—</div>
+                </div>
+              </div>
+
+              <div class="enc-controls">
+                <div class="pill" id="encStatusPill">Draft</div>
+                <button class="btn btn-secondary" id="saveDraftBtn">Save Draft</button>
+                <button class="btn btn-primary" id="signBtn">Sign</button>
+                <button class="btn btn-ghost" id="newVersionBtn">New Version</button>
+              </div>
+            </div>
+
+            <div class="note-shell">
+              <div class="note-head">
+                <div>
+                  <div class="note-title" id="noteTitle">Orthopedic Note</div>
+                  <div class="note-sub" id="noteSub">Template: Knee Pain Initial</div>
+                </div>
+
+                <div class="note-right">
+                  <label class="field-inline">
+                    <span>Template</span>
+                    <select id="templateSelect">
+                      <option value="knee_initial">Knee Pain Initial</option>
+                      <option value="shoulder_initial">Shoulder Pain Initial</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+
+              <div class="note-grid">
+                <section class="note-pane">
+                  <div class="pane-title">HPI</div>
+                  <textarea id="hpiField" class="note-text" rows="6"></textarea>
+                </section>
+
+                <section class="note-pane">
+                  <div class="pane-title">Exam</div>
+                  <textarea id="examField" class="note-text" rows="6"></textarea>
+                </section>
+
+                <section class="note-pane">
+                  <div class="pane-title">Assessment</div>
+                  <textarea id="assessmentField" class="note-text" rows="5"></textarea>
+                </section>
+
+                <section class="note-pane">
+                  <div class="pane-title">Plan</div>
+                  <textarea id="planField" class="note-text" rows="5"></textarea>
+                </section>
+
+                <section class="note-pane">
+                  <div class="pane-title">Dx</div>
+                  <input id="dxField" class="note-input" type="text" placeholder="e.g., M17.11 Primary osteoarthritis of right knee" />
+                  <div class="microcopy">Prototype: free-text ICD placeholder</div>
+                </section>
+              </div>
+            </div>
+          </section>
+
+          <!-- ROUTE: ADMIN IMPORT -->
+          <section class="route" id="routeAdmin" aria-label="Admin import">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">Admin • CSV Import</div>
+                  <div class="panel-sub">Mock Patients.csv + Visits.csv upload • Admin only</div>
+                </div>
+              </div>
+
+              <div class="import-grid">
+                <div class="import-box">
+                  <div class="pane-title">Upload files</div>
+                  <label class="field">
+                    <span>Patients.csv</span>
+                    <input type="file" id="patientsCsv" accept=".csv" />
+                  </label>
+                  <label class="field">
+                    <span>Visits.csv</span>
+                    <input type="file" id="visitsCsv" accept=".csv" />
+                  </label>
+                  <button class="btn btn-primary" id="runImportBtn">Run Import (Simulated)</button>
+                  <div class="microcopy">No files are processed; results are mocked.</div>
+                </div>
+
+                <div class="import-box">
+                  <div class="pane-title">Import results</div>
+                  <pre class="pre" id="importResults">No import run yet.</pre>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </section>
       </div>
     </main>
   </div>
 
-  <div class="Toasts" id="Toasts" aria-live="polite" aria-relevant="additions"></div>
+  <!-- Patient Search Modal -->
+  <div class="modal-backdrop" id="searchModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Patient search">
+      <div class="modal-head">
+        <div class="modal-title">Patient Search</div>
+        <button class="btn btn-ghost" id="closeSearchBtn">Close</button>
+      </div>
+
+      <div class="modal-body">
+        <label class="field">
+          <span>Search</span>
+          <input id="patientSearchInput" type="text" placeholder="Name, DOB, MRN (prototype)" autocomplete="off" />
+        </label>
+
+        <div class="results" id="patientSearchResults"></div>
+      </div>
+
+      <div class="modal-foot">
+        <div class="microcopy">Tip: <kbd>↑</kbd>/<kbd>↓</kbd> to move, <kbd>Enter</kbd> to select</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toasts -->
+  <div class="toasts" id="toasts" aria-live="polite" aria-relevant="additions"></div>
 
   <script src="app.js"></script>
 </body>
