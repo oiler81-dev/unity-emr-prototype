@@ -319,12 +319,6 @@ a{ color:inherit; text-decoration:none; }
 }
 .toastTitle{ font-weight: 900; margin:0 0 4px 0; }
 .toastBody{ margin:0; color: var(--muted); font-size: 13px; }
-
-@media (max-width: 980px){
-  .splitPane{ grid-template-columns: 1fr; }
-  .sidebar{ position: fixed; left: 0; top:0; bottom:0; transform: translateX(0); transition: transform .18s ease; z-index: 999; }
-  .sidebar.closed{ transform: translateX(-105%); }
-}
 /* =========================
    Mobile Friendly Upgrades
    ========================= */
@@ -414,4 +408,5 @@ a{ color:inherit; text-decoration:none; }
 @media (max-width: 600px){
   .card{ box-shadow: none; }
 }
+
 
