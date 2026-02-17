@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UnityEMR Prototype</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app" id="appRoot">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo" aria-label="UnityEMR logo">
+          <svg width="34" height="34" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+            <path d="M10 28c0-9 6-16 14-16s14 7 14 16-6 16-14 16S10 37 10 28Z" opacity=".15" fill="currentColor"/>
+            <path d="M24 8c7.732 0 14 6.268 14 14 0 7.732-6.268 14-14 14S10 29.732 10 22C10 14.268 16.268 8 24 8Z" stroke="currentColor" stroke-width="2.6"/>
+            <path d="M16 22h16" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+            <path d="M24 14v16" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="brandText">
+          <div class="brandName">UnityEMR</div>
+          <div class="brandSub">Prototype • Ortho Pilot</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="navItem" href="#/login" data-route="login"><span class="navIcon">🔐</span><span>Login</span></a>
+        <a class="navItem" href="#/schedule" data-route="schedule"><span class="navIcon">🗓️</span><span>Today</span></a>
+        <a class="navItem" href="#/patient" data-route="patient"><span class="navIcon">🧾</span><span>Patient Chart</span></a>
+        <a class="navItem" href="#/encounter" data-route="encounter"><span class="navIcon">✍️</span><span>Encounter</span></a>
+        <a class="navItem" href="#/admin-import" data-route="admin-import"><span class="navIcon">⬆️</span><span>Admin • Imports</span></a>
+      </nav>
+
+      <div class="sidebarFooter">
+        <div class="userChip">
+          <div class="avatar" id="avatar">NP</div>
+          <div class="userMeta">
+            <div class="userName" id="userName">Not signed in</div>
+            <div class="userRole" id="userRole">—</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <button class="btn btnGhost" id="btnTheme" type="button">Toggle theme</button>
+          <button class="btn btnGhost" id="btnSignOut" type="button">Sign out</button>
+        </div>
+
+        <div class="tiny muted">
+          Tip: <span class="kbd">G</span> then <span class="kbd">T</span> (Today), <span class="kbd">P</span> (Patient), <span class="kbd">E</span> (Encounter)
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbarLeft">
+          <button class="iconBtn" id="btnSidebar" type="button" aria-label="Toggle sidebar">☰</button>
+          <div class="crumbs" id="crumbs">UnityEMR</div>
+        </div>
+        <div class="topbarRight">
+          <div class="pill" id="clinicPill">LA • Clinic A</div>
+          <div class="pill soft" id="syncPill">CSV Sync</div>
+        </div>
+      </header>
+
+      <section class="content" id="view"></section>
+    </main>
+  </div>
+
+  <div class="toastHost" id="toastHost"></div>
+  <script src="app.js"></script>
+</body>
+</html>
