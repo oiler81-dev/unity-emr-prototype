@@ -3,331 +3,219 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>UnityEMR Prototype</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>UnityEMR • Prototype</title>
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body class="theme-light">
-  <div id="app" class="app-shell" aria-live="polite">
+  <div class="app" id="app">
 
     <!-- LEFT: Global Navigation -->
-    <aside class="global-nav" aria-label="Global navigation">
+    <aside class="nav" aria-label="Global Navigation">
       <div class="brand">
-        <div class="brand-mark" id="brandMark" aria-label="UnityEMR logo">U</div>
-        <div class="brand-text">
-          <div class="brand-title">UnityEMR</div>
-          <div class="brand-sub">Internal Prototype</div>
+        <div class="brandMark" aria-hidden="true">U</div>
+        <div class="brandText">
+          <div class="brandTitle">UnityEMR</div>
+          <div class="brandSub">Internal Prototype</div>
         </div>
       </div>
 
-      <nav class="nav" role="navigation">
-        <button class="nav-item is-active" data-route="schedule" id="navSchedule">
-          <span class="nav-ico">📅</span><span>Today</span>
+      <div class="navGroup">
+        <button class="navItem isActive" id="navToday" data-route="today">
+          <span class="navIcon">📅</span>
+          <span class="navLabel">Today</span>
         </button>
-        <button class="nav-item" data-route="chart" id="navChart">
-          <span class="nav-ico">🧑‍⚕️</span><span>Chart</span>
+        <button class="navItem" id="navChart" data-route="chart">
+          <span class="navIcon">🧑‍⚕️</span>
+          <span class="navLabel">Chart</span>
         </button>
-        <button class="nav-item" data-route="encounter" id="navEncounter">
-          <span class="nav-ico">📝</span><span>Encounter</span>
+        <button class="navItem" id="navEncounter" data-route="encounter">
+          <span class="navIcon">📝</span>
+          <span class="navLabel">Encounter</span>
         </button>
-        <button class="nav-item" data-route="admin" id="navAdmin">
-          <span class="nav-ico">⬆️</span><span>Imports</span>
-          <span class="tag tag-muted" id="adminTag">Admin</span>
+        <button class="navItem" id="navImports" data-route="imports">
+          <span class="navIcon">⬆️</span>
+          <span class="navLabel">Imports</span>
+          <span class="pillTag" id="adminTag">Admin</span>
         </button>
-      </nav>
+      </div>
 
-      <div class="nav-footer">
-        <div class="user-pill" id="userPill" role="button" tabindex="0" aria-label="User menu">
-          <div class="avatar" id="userAvatar">NP</div>
-          <div class="user-meta">
-            <div class="user-name" id="userName">—</div>
-            <div class="user-role" id="userRole">—</div>
+      <div class="navFooter">
+        <div class="userCard" id="userCard" role="button" tabindex="0">
+          <div class="userAvatar" id="userAvatar">NP</div>
+          <div class="userMeta">
+            <div class="userName" id="userName">Not signed in</div>
+            <div class="userRole" id="userRole">—</div>
           </div>
         </div>
 
-        <div class="footer-actions">
-          <button class="btn btn-ghost" id="themeToggle" title="Toggle theme (Alt+T)">Theme</button>
-          <button class="btn btn-ghost" id="logoutBtn">Logout</button>
+        <div class="navFooterActions">
+          <button class="btn btnGhost" id="themeBtn">Theme</button>
+          <button class="btn btnGhost" id="signOutBtn">Sign out</button>
         </div>
 
         <div class="hint">
-          <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>K</kbd> Search</div>
-          <div><kbd>G</kbd> then <kbd>T</kbd>/<kbd>P</kbd>/<kbd>E</kbd></div>
+          <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd> Patient Search</div>
+          <div><kbd>G</kbd> then <kbd>T</kbd>/<kbd>C</kbd>/<kbd>E</kbd></div>
         </div>
       </div>
     </aside>
 
-    <!-- MAIN COLUMN -->
-    <main class="main" aria-label="Main workspace">
+    <!-- RIGHT: Main -->
+    <main class="main" aria-label="Workspace">
       <header class="topbar">
-        <div class="topbar-left">
-          <div class="context-title" id="contextTitle">Today</div>
-          <div class="context-sub" id="contextSub">Schedule • Unity MSK</div>
+        <div class="topbarLeft">
+          <div class="title" id="pageTitle">Today</div>
+          <div class="subtitle" id="pageSubtitle">Schedule • Unity MSK</div>
         </div>
-
-        <div class="topbar-right">
-          <button class="btn btn-secondary" id="openSearchBtn" title="Patient search (Ctrl/⌘+K)">
-            Search Patients
-          </button>
-          <button class="btn btn-secondary" id="mockSyncBtn" title="Mock CSV sync">
-            CSV Sync: <span class="sync-dot" id="syncDot"></span><span id="syncText">Idle</span>
-          </button>
+        <div class="topbarRight">
+          <button class="btn btnSecondary" id="openSearchBtn" title="Ctrl/⌘+K">Search Patients</button>
+          <button class="btn btnSecondary" id="syncBtn">CSV Sync: <span class="syncDot" id="syncDot"></span><span id="syncText">Idle</span></button>
         </div>
       </header>
 
-      <!-- CONTENT GRID: Secondary sidebar + Primary content -->
-      <div class="content-grid">
+      <div class="content">
+        <!-- TODAY ROUTE -->
+        <section class="route isActive" id="routeToday" aria-label="Today schedule">
+          <div class="panel">
+            <div class="panelHead">
+              <div class="panelTitle">Today’s Schedule</div>
+              <div class="panelHeadRight">
+                <button class="btn btnGhost" id="densityBtn">Density: <span id="densityLabel">Comfort</span></button>
+              </div>
+            </div>
 
-        <!-- SECONDARY: Patient Chart Navigation (shows on chart/encounter) -->
-        <aside class="chart-nav" id="chartNav" aria-label="Chart navigation">
-          <div class="chart-nav-head">
-            <div class="chart-nav-title">Chart</div>
-            <div class="chart-nav-sub" id="chartNavSub">No patient selected</div>
+            <div class="toolbar">
+              <div class="seg" role="tablist" aria-label="Schedule view">
+                <button class="segBtn isActive" id="viewListBtn" data-view="list">List</button>
+                <button class="segBtn" id="viewProviderBtn" data-view="provider">By Provider</button>
+              </div>
+
+              <div class="filters">
+                <label class="filter">
+                  <span>Status</span>
+                  <select id="statusFilter">
+                    <option value="all">All</option>
+                    <option value="checkedin">Checked In</option>
+                    <option value="arrived">Arrived</option>
+                    <option value="roomed">Roomed</option>
+                    <option value="complete">Complete</option>
+                    <option value="noshow">No Show</option>
+                  </select>
+                </label>
+
+                <label class="filter">
+                  <span>Provider</span>
+                  <select id="providerFilter"></select>
+                </label>
+              </div>
+            </div>
+
+            <div class="groupHead">
+              <div class="groupTitle" id="groupTitle">All Providers</div>
+              <div class="groupSub" id="groupSub">—</div>
+            </div>
+
+            <div class="schedule" id="scheduleList"></div>
           </div>
+        </section>
 
-          <div class="chart-nav-section">
-            <button class="subnav-item is-active" data-chart-section="summary">Summary</button>
-            <button class="subnav-item" data-chart-section="problems">Problems + Note</button>
-            <button class="subnav-item" data-chart-section="documents">Documents</button>
-            <button class="subnav-item" data-chart-section="intake">Intake</button>
+        <!-- CHART ROUTE (placeholder) -->
+        <section class="route" id="routeChart" aria-label="Chart">
+          <div class="panel">
+            <div class="panelHead">
+              <div>
+                <div class="panelTitle">Chart</div>
+                <div class="panelSub">Prototype placeholder • Select a patient from Search</div>
+              </div>
+            </div>
+            <div class="panelBody">
+              <div class="empty">No patient selected.</div>
+            </div>
           </div>
+        </section>
 
-          <div class="chart-nav-footer">
-            <button class="btn btn-primary" id="startEncounterBtn">Start Encounter</button>
-            <button class="btn btn-ghost" id="backToTodayBtn">Back to Today</button>
+        <!-- ENCOUNTER ROUTE (placeholder) -->
+        <section class="route" id="routeEncounter" aria-label="Encounter">
+          <div class="panel">
+            <div class="panelHead">
+              <div>
+                <div class="panelTitle">Encounter</div>
+                <div class="panelSub">Prototype placeholder • Open from Today/Chart later</div>
+              </div>
+            </div>
+            <div class="panelBody">
+              <div class="empty">No encounter loaded.</div>
+            </div>
           </div>
-        </aside>
+        </section>
 
-        <!-- PRIMARY: Route Panels -->
-        <section class="workspace" aria-label="Workspace">
-
-          <!-- ROUTE: LOGIN (full overlay) -->
-          <section class="route route-login" id="routeLogin" aria-label="Login">
-            <div class="login-card">
-              <div class="login-title">UnityEMR</div>
-              <div class="login-sub">Mock SSO • Role-based prototype</div>
-
-              <label class="field">
-                <span>Sign in as</span>
-                <select id="loginRole">
-                  <option value="provider">Provider</option>
-                  <option value="ma">Medical Assistant</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </label>
-
-              <label class="field">
-                <span>Display name</span>
-                <input id="loginName" type="text" value="Nestor Perez" />
-              </label>
-
-              <button class="btn btn-primary btn-block" id="loginBtn">Continue</button>
-
-              <div class="login-note">
-                Prototype only • No PHI • Session simulated in-memory
+        <!-- IMPORTS ROUTE (admin gated placeholder) -->
+        <section class="route" id="routeImports" aria-label="Imports">
+          <div class="panel">
+            <div class="panelHead">
+              <div>
+                <div class="panelTitle">Admin • Imports</div>
+                <div class="panelSub">Prototype placeholder • Admin only</div>
               </div>
             </div>
-          </section>
-
-          <!-- ROUTE: TODAY / SCHEDULE -->
-          <section class="route" id="routeSchedule" aria-label="Today schedule">
-            <div class="panel schedule-panel">
-              <div class="panel-head">
-                <div class="panel-title">Today’s Schedule</div>
-                <div class="panel-actions">
-                  <button class="btn btn-ghost" id="densityToggle">Density: <span id="densityLabel">Comfort</span></button>
-                </div>
-              </div>
-
-              <div class="schedule-toolbar">
-                <div class="segmented" role="tablist" aria-label="Schedule view">
-                  <button class="seg-item is-active" data-view="list">List</button>
-                  <button class="seg-item" data-view="provider">By Provider</button>
-                </div>
-
-                <div class="filters">
-                  <label class="field-inline">
-                    <span>Status</span>
-                    <select id="statusFilter">
-                      <option value="all">All</option>
-                      <option value="checkedin">Checked In</option>
-                      <option value="arrived">Arrived</option>
-                      <option value="roomed">Roomed</option>
-                      <option value="complete">Complete</option>
-                      <option value="noshow">No Show</option>
-                    </select>
-                  </label>
-
-                  <label class="field-inline">
-                    <span>Provider</span>
-                    <select id="providerFilter">
-                      <option value="all">All</option>
-                    </select>
-                  </label>
-                </div>
-              </div>
-
-              <!-- fixed header + full-width list -->
-              <div class="schedule-group-head">
-                <div class="group-title" id="scheduleGroupTitle">All Providers</div>
-                <div class="group-sub" id="scheduleGroupSub">—</div>
-              </div>
-
-              <div class="schedule-list" id="scheduleList"></div>
+            <div class="panelBody">
+              <div class="empty">No import run yet.</div>
             </div>
-          </section>
-
-          <!-- ROUTE: CHART -->
-          <section class="route" id="routeChart" aria-label="Patient chart">
-
-            <div class="sticky-patient" id="patientHeader">
-              <div class="patient-id">
-                <div class="patient-photo" id="patientPhoto" aria-hidden="true"></div>
-                <div class="patient-meta">
-                  <div class="patient-name" id="patientName">No patient selected</div>
-                  <div class="patient-demographics" id="patientDemo">—</div>
-                </div>
-              </div>
-
-              <div class="patient-actions">
-                <button class="btn btn-secondary" id="openEncounterBtn">Open Encounter</button>
-                <button class="btn btn-ghost" id="mockExportBtn">Export to AdvancedMD</button>
-              </div>
-            </div>
-
-            <div class="chart-content" id="chartContent"></div>
-          </section>
-
-          <!-- ROUTE: ENCOUNTER -->
-          <section class="route" id="routeEncounter" aria-label="Encounter workspace">
-            <div class="sticky-patient">
-              <div class="patient-id">
-                <div class="patient-photo" id="encPatientPhoto" aria-hidden="true"></div>
-                <div class="patient-meta">
-                  <div class="patient-name" id="encPatientName">No patient selected</div>
-                  <div class="patient-demographics" id="encPatientDemo">—</div>
-                </div>
-              </div>
-
-              <div class="enc-controls">
-                <div class="pill" id="encStatusPill">Draft</div>
-                <button class="btn btn-secondary" id="saveDraftBtn">Save Draft</button>
-                <button class="btn btn-primary" id="signBtn">Sign</button>
-                <button class="btn btn-ghost" id="newVersionBtn">New Version</button>
-              </div>
-            </div>
-
-            <div class="note-shell">
-              <div class="note-head">
-                <div>
-                  <div class="note-title" id="noteTitle">Orthopedic Note</div>
-                  <div class="note-sub" id="noteSub">Template: Knee Pain Initial</div>
-                </div>
-
-                <div class="note-right">
-                  <label class="field-inline">
-                    <span>Template</span>
-                    <select id="templateSelect">
-                      <option value="knee_initial">Knee Pain Initial</option>
-                      <option value="shoulder_initial">Shoulder Pain Initial</option>
-                    </select>
-                  </label>
-                </div>
-              </div>
-
-              <div class="note-grid">
-                <section class="note-pane">
-                  <div class="pane-title">HPI</div>
-                  <textarea id="hpiField" class="note-text" rows="6"></textarea>
-                </section>
-
-                <section class="note-pane">
-                  <div class="pane-title">Exam</div>
-                  <textarea id="examField" class="note-text" rows="6"></textarea>
-                </section>
-
-                <section class="note-pane">
-                  <div class="pane-title">Assessment</div>
-                  <textarea id="assessmentField" class="note-text" rows="5"></textarea>
-                </section>
-
-                <section class="note-pane">
-                  <div class="pane-title">Plan</div>
-                  <textarea id="planField" class="note-text" rows="5"></textarea>
-                </section>
-
-                <section class="note-pane">
-                  <div class="pane-title">Dx</div>
-                  <input id="dxField" class="note-input" type="text" placeholder="e.g., M17.11 Primary osteoarthritis of right knee" />
-                  <div class="microcopy">Prototype: free-text ICD placeholder</div>
-                </section>
-              </div>
-            </div>
-          </section>
-
-          <!-- ROUTE: ADMIN IMPORT -->
-          <section class="route" id="routeAdmin" aria-label="Admin import">
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <div class="panel-title">Admin • CSV Import</div>
-                  <div class="panel-sub">Mock Patients.csv + Visits.csv upload • Admin only</div>
-                </div>
-              </div>
-
-              <div class="import-grid">
-                <div class="import-box">
-                  <div class="pane-title">Upload files</div>
-                  <label class="field">
-                    <span>Patients.csv</span>
-                    <input type="file" id="patientsCsv" accept=".csv" />
-                  </label>
-                  <label class="field">
-                    <span>Visits.csv</span>
-                    <input type="file" id="visitsCsv" accept=".csv" />
-                  </label>
-                  <button class="btn btn-primary" id="runImportBtn">Run Import (Simulated)</button>
-                  <div class="microcopy">No files are processed; results are mocked.</div>
-                </div>
-
-                <div class="import-box">
-                  <div class="pane-title">Import results</div>
-                  <pre class="pre" id="importResults">No import run yet.</pre>
-                </div>
-              </div>
-            </div>
-          </section>
-
+          </div>
         </section>
       </div>
     </main>
-  </div>
 
-  <!-- Patient Search Modal -->
-  <div class="modal-backdrop" id="searchModal" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-label="Patient search">
-      <div class="modal-head">
-        <div class="modal-title">Patient Search</div>
-        <button class="btn btn-ghost" id="closeSearchBtn">Close</button>
-      </div>
+    <!-- LOGIN OVERLAY -->
+    <div class="overlay isOpen" id="loginOverlay" aria-label="Login">
+      <div class="loginCard" role="dialog" aria-modal="true">
+        <div class="loginTitle">UnityEMR</div>
+        <div class="loginSub">Mock SSO • Role-based prototype</div>
 
-      <div class="modal-body">
         <label class="field">
-          <span>Search</span>
-          <input id="patientSearchInput" type="text" placeholder="Name, DOB, MRN (prototype)" autocomplete="off" />
+          <span>Sign in as</span>
+          <select id="loginRole">
+            <option value="provider" selected>Provider</option>
+            <option value="ma">Medical Assistant</option>
+            <option value="admin">Admin</option>
+          </select>
         </label>
 
-        <div class="results" id="patientSearchResults"></div>
-      </div>
+        <label class="field">
+          <span>Display name</span>
+          <input type="text" id="loginName" value="Nestor Perez" />
+        </label>
 
-      <div class="modal-foot">
-        <div class="microcopy">Tip: <kbd>↑</kbd>/<kbd>↓</kbd> to move, <kbd>Enter</kbd> to select</div>
+        <button class="btn btnPrimary full" id="loginBtn">Continue</button>
+
+        <div class="micro">Prototype only • No PHI • Static data</div>
       </div>
     </div>
+
+    <!-- SEARCH MODAL -->
+    <div class="modalBackdrop" id="searchModal" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-label="Patient Search">
+        <div class="modalHead">
+          <div class="modalTitle">Patient Search</div>
+          <button class="btn btnGhost" id="closeSearchBtn">Close</button>
+        </div>
+        <div class="modalBody">
+          <label class="field">
+            <span>Search</span>
+            <input id="searchInput" type="text" placeholder="Name, MRN (prototype)" autocomplete="off" />
+          </label>
+          <div class="results" id="searchResults"></div>
+        </div>
+        <div class="modalFoot">
+          <div class="micro">Tip: <kbd>↑</kbd>/<kbd>↓</kbd> then <kbd>Enter</kbd></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOASTS -->
+    <div class="toasts" id="toasts" aria-live="polite" aria-relevant="additions"></div>
   </div>
 
-  <!-- Toasts -->
-  <div class="toasts" id="toasts" aria-live="polite" aria-relevant="additions"></div>
-
-  <script src="app.js"></script>
+  <script src="./app.js" defer></script>
 </body>
 </html>
