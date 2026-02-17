@@ -1,73 +1,85 @@
 :root{
-  --radius: 14px;
-  --radius2: 18px;
-  --shadow: 0 10px 28px rgba(0,0,0,.08);
-  --shadow2: 0 14px 34px rgba(0,0,0,.12);
   --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
+  --r12: 12px;
+  --r16: 16px;
+  --r20: 20px;
+
+  --shadow: 0 10px 26px rgba(0,0,0,.08);
+  --shadow2: 0 18px 50px rgba(0,0,0,.14);
+
+  /* Calm light */
   --bg: #f6f8fc;
   --panel: #ffffff;
-  --panel2: #ffffff;
+  --panel2:#ffffff;
   --card: #ffffff;
   --text: #0f172a;
-  --muted: #64748b;
+  --muted:#64748b;
   --line: rgba(15, 23, 42, .10);
 
-  --accent: #2563eb;
-  --good: #16a34a;
-  --warn: #d97706;
-  --bad:  #dc2626;
+  --accent:#2563eb;
+  --good:#16a34a;
+  --warn:#d97706;
+  --bad: #dc2626;
 
-  --softAccent: rgba(37, 99, 235, .10);
-  --softCard: rgba(2, 6, 23, .02);
+  --softAccent: rgba(37,99,235,.10);
+  --soft: rgba(2, 6, 23, .03);
 }
 
 [data-theme="dark"]{
   --bg: #0b1220;
-  --panel: #0f172a;
-  --panel2: #0b1324;
-  --card: #111c33;
-  --text: #e6edf7;
-  --muted: #9aa7bf;
+  --panel:#0f172a;
+  --panel2:#0b1324;
+  --card:#111c33;
+  --text:#e6edf7;
+  --muted:#9aa7bf;
   --line: rgba(255,255,255,.10);
 
-  --accent: #79a6ff;
-
-  --softAccent: rgba(121, 166, 255, .14);
-  --softCard: rgba(255,255,255,.03);
+  --accent:#79a6ff;
+  --softAccent: rgba(121,166,255,.14);
+  --soft: rgba(255,255,255,.04);
 
   --shadow: 0 18px 50px rgba(0,0,0,.35);
   --shadow2: 0 18px 60px rgba(0,0,0,.45);
 }
 
 *{ box-sizing:border-box; }
-html,body{ height:100%; margin:0; font-family:var(--sans); color:var(--text); background: var(--bg); }
+html,body{ height:100%; margin:0; font-family:var(--sans); color:var(--text); background:var(--bg); }
 a{ color:inherit; text-decoration:none; }
 
-.app{ display:flex; height:100vh; overflow:hidden; }
+.app{
+  display:flex;
+  height:100vh;
+  overflow:hidden;
+}
 
+/* ===== Sidebar (desktop) ===== */
 .sidebar{
-  width: 310px;
+  width: 300px;
   min-width: 260px;
   background: var(--panel2);
   border-right: 1px solid var(--line);
-  padding: 16px;
+  padding: 14px;
   display:flex;
   flex-direction:column;
-  gap:14px;
+  gap:12px;
+  z-index: 30;
 }
 
 .brand{
-  display:flex; align-items:center; gap:12px;
+  display:flex;
+  align-items:center;
+  gap:12px;
   padding: 12px;
   border:1px solid var(--line);
-  border-radius: var(--radius2);
-  background: linear-gradient(180deg, var(--softCard), transparent);
+  border-radius: var(--r20);
+  background: linear-gradient(180deg, var(--soft), transparent);
   box-shadow: var(--shadow);
 }
 .logo{
-  width:44px;height:44px;border-radius: 16px;
+  width:44px;height:44px;
+  border-radius: var(--r16);
   display:grid; place-items:center;
   background: var(--softAccent);
   color: var(--accent);
@@ -77,20 +89,21 @@ a{ color:inherit; text-decoration:none; }
 .brandSub{ font-size:12px; color: var(--muted); margin-top:2px; }
 
 .nav{
-  display:flex; flex-direction:column; gap:8px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
   padding: 8px;
-  border-radius: var(--radius2);
   border:1px solid var(--line);
+  border-radius: var(--r20);
   background: var(--panel);
 }
 .navItem{
   display:flex; align-items:center; gap:10px;
   padding: 12px 12px;
-  border-radius: 14px;
-  transition: background .15s ease, transform .08s ease;
-  color: var(--text);
+  border-radius: var(--r16);
+  transition: background .12s ease;
 }
-.navItem:hover{ background: var(--softAccent); transform: translateY(-1px); }
+.navItem:hover{ background: var(--softAccent); }
 .navItem.active{
   background: linear-gradient(180deg, var(--softAccent), transparent);
   border:1px solid rgba(37,99,235,.18);
@@ -105,16 +118,15 @@ a{ color:inherit; text-decoration:none; }
   padding-top: 12px;
   border-top: 1px solid var(--line);
 }
-
 .userChip{
   display:flex; align-items:center; gap:10px;
   padding: 12px;
-  border-radius: var(--radius2);
+  border-radius: var(--r20);
   border:1px solid var(--line);
   background: var(--panel);
 }
 .avatar{
-  width:42px;height:42px;border-radius: 16px;
+  width:42px;height:42px;border-radius: var(--r16);
   display:grid; place-items:center;
   font-weight: 900;
   background: var(--softAccent);
@@ -124,28 +136,42 @@ a{ color:inherit; text-decoration:none; }
 .userName{ font-weight: 800; }
 .userRole{ font-size:12px; color: var(--muted); margin-top:2px; }
 
-.main{ flex:1; display:flex; flex-direction:column; min-width: 0; }
+/* ===== Main ===== */
+.main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-width: 0;
+}
+
 .topbar{
-  height: 64px;
+  height: 60px;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding: 0 18px;
+  padding: 0 14px;
   border-bottom: 1px solid var(--line);
   background: var(--panel2);
 }
-.topbarLeft{ display:flex; align-items:center; gap:12px; }
-.topbarRight{ display:flex; align-items:center; gap:10px; }
-.crumbs{ font-weight: 900; letter-spacing:.2px; }
+.topbarLeft{ display:flex; align-items:center; gap:10px; min-width:0; }
+.topbarRight{ display:flex; align-items:center; gap:8px; }
+.crumbs{
+  font-weight: 900;
+  letter-spacing:.2px;
+  white-space: nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 
 .iconBtn{
-  width:40px;height:40px;border-radius: 14px;
+  width:40px;height:40px;
+  border-radius: var(--r16);
   border:1px solid var(--line);
   background: var(--panel);
   color: var(--text);
   cursor:pointer;
 }
-.iconBtn:hover{ background: var(--softCard); }
+.iconBtn:hover{ background: var(--soft); }
 
 .pill{
   padding: 8px 10px;
@@ -162,39 +188,38 @@ a{ color:inherit; text-decoration:none; }
 }
 
 .content{
-  padding: 18px;
+  padding: 14px;
   overflow:auto;
   min-width: 0;
 }
 
-/* Generic cards */
+/* ===== Components ===== */
 .card{
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: var(--radius2);
+  border-radius: var(--r20);
   box-shadow: var(--shadow);
-  padding: 16px;
+  padding: 14px;
   min-width: 0;
 }
-.cardTitle{
-  font-weight: 900;
-  margin:0 0 6px 0;
-  line-height: 1.2;
-  /* never clip titles */
-  overflow: visible;
-  word-break: normal;
+.cardHeader{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
 }
-.cardSub{ color: var(--muted); font-size: 13px; margin:0 0 12px 0; line-height:1.35; }
+.h1{ font-size: 18px; font-weight: 900; margin:0; line-height:1.2; }
+.h2{ font-size: 14px; font-weight: 900; margin:0; }
+.sub{ font-size: 13px; color: var(--muted); margin-top:4px; line-height:1.35; }
 
 .hr{ height:1px; background: var(--line); margin: 12px 0; }
 .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-.spread{ display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
 
 .label{ display:block; font-size:12px; color: var(--muted); margin-bottom:6px; }
 .input,.select,.textarea{
   width:100%;
-  padding: 11px 12px;
-  border-radius: 14px;
+  padding: 12px 12px;
+  border-radius: var(--r16);
   border: 1px solid var(--line);
   background: var(--panel);
   color: var(--text);
@@ -206,25 +231,19 @@ a{ color:inherit; text-decoration:none; }
   border: 1px solid var(--line);
   background: var(--panel);
   color: var(--text);
-  padding: 10px 12px;
-  border-radius: 14px;
+  padding: 11px 12px;
+  border-radius: var(--r16);
   cursor:pointer;
   font-weight: 800;
 }
-.btn:hover{ background: var(--softCard); }
+.btn:hover{ background: var(--soft); }
 .btnPrimary{
   background: var(--accent);
   border-color: rgba(37,99,235,.25);
   color: white;
 }
-[data-theme="dark"] .btnPrimary{ color:#0b1220; background: var(--accent); }
-.btnPrimary:hover{ filter: brightness(1.04); }
+[data-theme="dark"] .btnPrimary{ color:#0b1220; }
 .btnGhost{ background: transparent; }
-.btnDanger{
-  background: rgba(220,38,38,.10);
-  border-color: rgba(220,38,38,.20);
-  color: var(--bad);
-}
 
 .badge{
   font-size: 12px;
@@ -238,175 +257,163 @@ a{ color:inherit; text-decoration:none; }
 .badge.warn{ border-color: rgba(217,119,6,.25); background: rgba(217,119,6,.10); color: var(--warn); }
 .badge.bad{  border-color: rgba(220,38,38,.25); background: rgba(220,38,38,.10); color: var(--bad); }
 
-.table{
-  width:100%;
-  border-collapse:separate;
-  border-spacing:0;
-  border-radius: var(--radius2);
-  border: 1px solid var(--line);
-  overflow:hidden;
-}
-.table th,.table td{
-  padding: 12px 12px;
-  border-bottom: 1px solid var(--line);
-  vertical-align: middle;
-}
-.table th{
-  text-align:left;
-  font-size: 12px;
-  color: var(--muted);
-  background: var(--softCard);
-}
-.table tr:hover td{ background: var(--softAccent); }
-.table tr:last-child td{ border-bottom:none; }
-
 .kbd{
   font-family: var(--mono);
   font-size: 12px;
   padding: 2px 6px;
   border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--softCard);
-  color: var(--text);
+  border-radius: 10px;
+  background: var(--soft);
 }
 
-.tiny{ font-size: 12px; }
-.muted{ color: var(--muted); }
-
-.patientCell{ display:flex; align-items:center; gap:10px; min-width: 0; }
+/* Patient cell */
+.patientCell{ display:flex; align-items:center; gap:10px; min-width:0; }
 .photo{
-  width:36px;height:36px;border-radius: 14px;
+  width:40px;height:40px;
+  border-radius: var(--r16);
   border: 1px solid var(--line);
-  background: var(--softCard);
+  background: var(--soft);
   object-fit: cover;
-  flex: 0 0 auto;
+  flex:0 0 auto;
 }
-.patientMeta{ min-width: 0; }
-.patientMeta strong{ display:block; }
-.patientMeta .small{ font-size:12px; color: var(--muted); margin-top:2px; }
+.patientMeta{ min-width:0; }
+.patientName{
+  font-weight: 900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.patientLine{
+  font-size:12px;
+  color: var(--muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 
-/* ✅ FIX: Today page is a split-pane layout (no more tiny column) */
+/* ===== Today layout ===== */
 .splitPane{
   display:grid;
-  grid-template-columns: 440px 1fr;
-  gap: 14px;
-  align-items: start;
-  min-width: 0;
+  grid-template-columns: 420px 1fr;
+  gap: 12px;
+  align-items:start;
+  min-width:0;
 }
-.splitPane > *{ min-width: 0; }
+.splitPane > *{ min-width:0; }
 
-/* Right panel should fill and never look “empty” */
-.detailShell{
-  min-height: calc(100vh - 64px - 18px*2);
+/* Schedule list */
+.list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.visitCard{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding: 10px;
+  border-radius: var(--r20);
+  border: 1px solid var(--line);
+  background: var(--panel);
+  cursor:pointer;
+}
+.visitCard:hover{ background: var(--soft); }
+.visitCard.active{
+  background: var(--softAccent);
+  border-color: rgba(37,99,235,.22);
+}
+.visitLeft{ display:flex; align-items:center; gap:10px; min-width:0; }
+.timePill{
+  font-family: var(--mono);
+  font-size:12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--soft);
+  color: var(--text);
+  flex:0 0 auto;
 }
 
+/* Details panel */
+.detailGrid{
+  display:grid;
+  grid-template-columns: 1fr 320px;
+  gap: 12px;
+  align-items:start;
+}
+.detailGrid > *{ min-width:0; }
+
+/* ===== Toast ===== */
 .toastHost{
   position: fixed;
-  right: 14px;
-  bottom: 14px;
+  right: 12px;
+  bottom: 12px;
   display:flex;
   flex-direction:column;
   gap:10px;
-  z-index: 1000;
+  z-index: 80;
 }
 .toast{
-  width: min(420px, calc(100vw - 28px));
-  padding: 12px 12px;
-  border-radius: 16px;
+  width: min(420px, calc(100vw - 24px));
+  padding: 12px;
+  border-radius: var(--r20);
   border: 1px solid var(--line);
   background: var(--panel2);
   box-shadow: var(--shadow2);
 }
 .toastTitle{ font-weight: 900; margin:0 0 4px 0; }
 .toastBody{ margin:0; color: var(--muted); font-size: 13px; }
-/* =========================
-   Mobile Friendly Upgrades
-   ========================= */
 
-/* Make content padding smaller on phones */
-@media (max-width: 600px){
-  .content{ padding: 12px; }
-  .topbar{ padding: 0 12px; }
-  .crumbs{ font-size: 14px; }
+/* ===== Mobile Drawer + Responsive ===== */
+.backdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  opacity: 0;
+  pointer-events:none;
+  transition: opacity .15s ease;
+  z-index: 25;
+}
+.backdrop.show{
+  opacity: 1;
+  pointer-events:auto;
 }
 
-/* Sidebar becomes an overlay drawer */
 @media (max-width: 980px){
+  /* Sidebar becomes drawer */
   .sidebar{
     position: fixed;
     top: 0; bottom: 0; left: 0;
     width: 86vw;
     max-width: 340px;
-    z-index: 999;
     transform: translateX(-110%);
+    transition: transform .18s ease;
     box-shadow: var(--shadow2);
   }
-  .sidebar.closed{
-    transform: translateX(-110%);
-  }
-  .sidebar.open{
-    transform: translateX(0);
-  }
-}
+  .sidebar.open{ transform: translateX(0); }
 
-/* Add a dim backdrop behind sidebar on mobile */
-.mobileBackdrop{
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.35);
-  z-index: 998;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .15s ease;
-}
-.mobileBackdrop.show{
-  opacity: 1;
-  pointer-events: auto;
-}
+  /* Today becomes stacked */
+  .splitPane{ grid-template-columns: 1fr; }
 
-/* Split-pane stacks on mobile */
-@media (max-width: 980px){
-  .splitPane{
-    grid-template-columns: 1fr;
-  }
-  .detailShell{
-    min-height: auto;
-  }
-}
+  /* Details becomes stacked */
+  .detailGrid{ grid-template-columns: 1fr; }
 
-/* Tables: allow horizontal scroll on smaller devices */
-.tableWrap{
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  border-radius: var(--radius2);
-}
-.tableWrap .table{
-  min-width: 700px; /* prevents squishing */
-}
-
-/* Bigger touch targets */
-@media (max-width: 600px){
-  .btn{ padding: 12px 14px; border-radius: 16px; }
-  .navItem{ padding: 14px 12px; }
-  .input,.select,.textarea{ padding: 12px 12px; }
-  .photo{ width: 40px; height: 40px; }
-}
-
-/* Make patient name + reason not overflow */
-.patientMeta strong{
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.patientMeta .small{
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Optional: reduce heavy shadows on mobile for readability */
-@media (max-width: 600px){
+  /* Reduce shadows on mobile (less visual noise) */
   .card{ box-shadow: none; }
 }
 
+@media (max-width: 520px){
+  .topbarRight{ display:none; } /* keeps header clean on tiny screens */
+  .content{ padding: 12px; }
+  .h1{ font-size: 16px; }
+  .btn{ padding: 12px 12px; }
+}
 
+/* Accessibility: better focus */
+:focus-visible{
+  outline: 3px solid rgba(37,99,235,.35);
+  outline-offset: 2px;
+}
+
+/* Hide sidebar button on desktop if you want (keep it visible for now) */
